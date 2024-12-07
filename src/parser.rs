@@ -525,7 +525,6 @@ impl IsisTlv {
     }
 }
 
-pub fn parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {
-    let (input, packet) = IsisPacket::parse_be(input)?;
-    Ok((input, packet))
+pub fn isis_parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {
+    IsisPacket::parse_be(input)
 }

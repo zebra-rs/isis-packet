@@ -3,14 +3,14 @@ use hex_literal::hex;
 use isis_packet::*;
 
 fn parse_emit(buf: &[u8]) {
-    let packet = parse(buf);
+    let packet = isis_parse(buf);
     assert!(packet.is_ok());
 
     let (_, packet) = packet.unwrap();
     let mut buf = BytesMut::new();
     packet.emit(&mut buf);
 
-    let packet = parse(&buf);
+    let packet = isis_parse(&buf);
     assert!(packet.is_ok());
 
     let (_, packet) = packet.unwrap();
