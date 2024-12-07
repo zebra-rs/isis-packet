@@ -18,14 +18,6 @@ pub fn many0<'a, O, E: ParseError<&'a [u8]>>(
     }
 }
 
-pub fn u8_3_u32(array: &[u8]) -> u32 {
-    if array.len() < 3 {
-        0
-    } else {
-        ((array[0] as u32) << 16) | ((array[1] as u32) << 8) | (array[2] as u32)
-    }
-}
-
 pub fn u32_u8_3(value: u32) -> [u8; 3] {
     // Extract the three least significant bytes as big-endian
     [

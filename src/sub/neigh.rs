@@ -2,12 +2,12 @@ use std::net::Ipv4Addr;
 
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
-use nom::number::complete::be_u8;
+use nom::number::complete::{be_u24, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::sub::{IsisSubCode, IsisSubCodeLen};
-use crate::util::{many0, u8_3_u32, ParseBe};
+use crate::util::{many0, u32_u8_3, ParseBe};
 use crate::*;
 
 #[derive(Debug, Default)]
@@ -39,7 +39,6 @@ impl TlvEmitter for IsisTlvExtIsReach {
 #[derive(Debug, Default)]
 pub struct IsisTlvExtIsReachEntry {
     pub neighbor_id: [u8; 7],
-    pub metric_raw: [u8; 3],
     pub metric: u32,
     pub subs: Vec<IsisSubTlv>,
 }
@@ -55,7 +54,8 @@ impl IsisTlvExtIsReachEntry {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(&self.neighbor_id[..]);
-        buf.put(&self.metric_raw[..]);
+        buf.put(&u32_u8_3(self.metric)[..]);
+        //buf.put(&self.metric_raw[..]);
         buf.put_u8(self.sub_len());
         for sub in self.subs.iter() {
             sub.emit(buf);
@@ -66,15 +66,14 @@ impl IsisTlvExtIsReachEntry {
 impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
     fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
         let (input, neighbor_id) = take(7usize)(input)?;
-        let (input, metric_raw) = take(3usize)(input)?;
+        let (input, metric) = be_u24(input)?;
         let (input, sublen) = be_u8(input)?;
         let (sub, input) = input.split_at(sublen as usize);
         let (_, subs) = many0(IsisSubTlv::parse_subs)(sub)?;
 
         let mut tlv = Self::default();
         tlv.neighbor_id.copy_from_slice(neighbor_id);
-        tlv.metric_raw.copy_from_slice(metric_raw);
-        tlv.metric = u8_3_u32(metric_raw);
+        tlv.metric = metric;
         tlv.subs = subs;
 
         Ok((input, tlv))
@@ -176,9 +175,7 @@ pub struct IsisSubLanAdjSid {
     pub flags: u8,
     pub weight: u8,
     pub system_id: [u8; 6],
-    #[nom(PostExec(let sid = u8_3_u32(&sid_raw);))]
-    pub sid_raw: [u8; 3],
-    #[nom(Value(sid))]
+    #[nom(Parse = "be_u24")]
     pub sid: u32,
 }
 
@@ -195,7 +192,7 @@ impl TlvEmitter for IsisSubLanAdjSid {
         buf.put_u8(self.flags);
         buf.put_u8(self.weight);
         buf.put(&self.system_id[..]);
-        buf.put(&self.sid_raw[..]);
+        buf.put(&u32_u8_3(self.sid)[..]);
     }
 }
 

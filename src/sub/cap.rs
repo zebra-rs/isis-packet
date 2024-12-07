@@ -1,14 +1,13 @@
 use std::net::Ipv4Addr;
 
 use bytes::{BufMut, BytesMut};
-use nom::bytes::complete::take;
-use nom::number::complete::{be_u32, be_u8};
+use nom::number::complete::{be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use util::u32_u8_3;
 
 use crate::sub::{IsisSubCode, IsisSubCodeLen};
-use crate::util::{many0, u8_3_u32, ParseBe};
+use crate::util::{many0, ParseBe};
 use crate::*;
 
 // Sub TLV codepoints for Router Capability.
@@ -83,8 +82,8 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
     let (input, len) = be_u8(input)?;
     match len {
         3 => {
-            let (input, label) = take(3usize)(input)?;
-            Ok((input, SidLabel::Label(u8_3_u32(label))))
+            let (input, label) = be_u24(input)?;
+            Ok((input, SidLabel::Label(label)))
         }
         4 => {
             let (input, index) = be_u32(input)?;
@@ -97,9 +96,7 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
 #[derive(Debug, NomBE)]
 pub struct IsisSubSegmentRoutingCap {
     pub flags: u8,
-    #[nom(PostExec(let range = u8_3_u32(&range_raw);))]
-    pub range_raw: [u8; 3],
-    #[nom(Value(range))]
+    #[nom(Parse = "be_u24")]
     pub range: u32,
     #[nom(Parse = "parse_sid_label")]
     pub sid: SidLabel,
@@ -118,7 +115,7 @@ impl TlvEmitter for IsisSubSegmentRoutingCap {
     fn emit(&self, buf: &mut BytesMut) {
         use SidLabel::*;
         buf.put_u8(self.flags);
-        buf.put(&self.range_raw[..]);
+        buf.put(&u32_u8_3(self.range)[..]);
         buf.put_u8(1); // RFC8667 2.3. SID/Label Type: 1.
         buf.put_u8(self.sid.len());
         match self.sid {
@@ -150,9 +147,7 @@ impl TlvEmitter for IsisSubSegmentRoutingAlgo {
 #[derive(Debug, NomBE)]
 pub struct IsisSubSegmentRoutingLB {
     pub flags: u8,
-    #[nom(PostExec(let range = u8_3_u32(&range_raw);))]
-    pub range_raw: [u8; 3],
-    #[nom(Value(range))]
+    #[nom(Parse = "be_u24")]
     pub range: u32,
     #[nom(Parse = "parse_sid_label")]
     pub sid: SidLabel,
@@ -171,7 +166,7 @@ impl TlvEmitter for IsisSubSegmentRoutingLB {
     fn emit(&self, buf: &mut BytesMut) {
         use SidLabel::*;
         buf.put_u8(self.flags);
-        buf.put(&self.range_raw[..]);
+        buf.put(&u32_u8_3(self.range)[..]);
         buf.put_u8(1); // RFC8667 2.3. SID/Label Type: 1.
         buf.put_u8(self.sid.len());
         match self.sid {
