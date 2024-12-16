@@ -174,7 +174,7 @@ impl TlvEmitter for IsisTlvIpv6Reach {
 #[bitfield(u8, debug = true)]
 pub struct Ipv6ControlInfo {
     #[bits(5)]
-    pub reserved: usize,
+    pub resvd: usize,
     pub sub_tlv: bool,
     pub dist_internal: bool,
     pub dist_up: bool,

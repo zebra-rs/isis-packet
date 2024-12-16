@@ -33,7 +33,7 @@ pub struct IsisPacket {
     pub id_length: u8,
     pub pdu_type: IsisPduType,
     pub version: u8,
-    pub reserved: u8,
+    pub resvd: u8,
     pub max_area_addr: u8,
     #[nom(Parse = "{ |x| IsisPdu::parse_be(x, pdu_type) }")]
     pub pdu: IsisPdu,
@@ -48,7 +48,7 @@ impl IsisPacket {
         buf.put_u8(self.id_length);
         buf.put_u8(self.pdu_type.0);
         buf.put_u8(self.version);
-        buf.put_u8(self.reserved);
+        buf.put_u8(self.resvd);
         buf.put_u8(self.max_area_addr);
         match &self.pdu {
             L1Hello(v) => v.emit(buf),

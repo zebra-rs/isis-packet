@@ -21,7 +21,7 @@ impl Display for IsisPacket {
             self.id_length,
             self.pdu_type.0,
             self.version,
-            self.reserved,
+            self.resvd,
             self.max_area_addr,
             self.pdu,
         )
