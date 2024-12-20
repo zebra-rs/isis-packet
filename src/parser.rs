@@ -21,6 +21,18 @@ const ISIS_L1LSP_PDU: u8 = 0x12;
 const ISIS_CSNP_PDU: u8 = 0x18;
 const ISIS_PSNP_PDU: u8 = 0x1a;
 
+#[repr(u8)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+pub enum IsisType {
+    #[default]
+    L1Hello = 1,
+    L2Hello = 2,
+    P2PHello = 3,
+    L1Lsp = 4,
+    L2Lsp = 5,
+    Unknown(u8),
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, NomBE)]
 pub struct IsisPduType(pub u8);
 
