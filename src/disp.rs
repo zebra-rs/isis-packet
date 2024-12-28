@@ -10,7 +10,7 @@ impl Display for IsisPacket {
  Length Indicator: {}
  Version/Protocol ID Extension: {}
  ID Length: {}
- PDU Type: 0x{:x}
+ PDU Type: {}
  Version: {}
  Reserved: {}
  Maximum Area Address: {}
@@ -19,7 +19,7 @@ impl Display for IsisPacket {
             self.length_indicator,
             self.id_extension,
             self.id_length,
-            self.pdu_type.0,
+            self.pdu_type,
             self.version,
             self.resvd,
             self.max_area_addr,
@@ -36,6 +36,7 @@ impl Display for IsisPdu {
             L1Lsp(v) => write!(f, "{}", v),
             Csnp(v) => write!(f, "{}", v),
             Psnp(v) => write!(f, "{}", v),
+            Unknown(_) => write!(f, "Unknown"),
         }
     }
 }

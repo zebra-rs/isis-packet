@@ -6,23 +6,12 @@ use nom::number::complete::be_u32;
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
-use crate::sub::{IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvRouterCap};
+use super::sub::{IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvRouterCap};
+use super::IsisType;
 use crate::util::{many0, ParseBe};
 
 // IS-IS discriminator.
 const ISIS_IRDP_DISC: u8 = 0x83;
-
-// IS-IS PDU Types.
-const ISIS_L1LAN_HELLO_PDU: u8 = 0x0F;
-// const ISIS_L2LAN_HELLO_PDU: u8 = 0x10;
-// const ISIS_P2P_HELLO_PDU: u8 = 0x11;
-const ISIS_L1LSP_PDU: u8 = 0x12;
-// const ISIS_L2LSP_PDU: u8 = 0x14;
-const ISIS_CSNP_PDU: u8 = 0x18;
-const ISIS_PSNP_PDU: u8 = 0x1a;
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, NomBE)]
-pub struct IsisPduType(pub u8);
 
 #[derive(Debug, NomBE)]
 pub struct IsisPacket {
@@ -31,7 +20,7 @@ pub struct IsisPacket {
     pub length_indicator: u8,
     pub id_extension: u8,
     pub id_length: u8,
-    pub pdu_type: IsisPduType,
+    pub pdu_type: IsisType,
     pub version: u8,
     pub resvd: u8,
     pub max_area_addr: u8,
@@ -46,7 +35,7 @@ impl IsisPacket {
         buf.put_u8(self.length_indicator);
         buf.put_u8(self.id_extension);
         buf.put_u8(self.id_length);
-        buf.put_u8(self.pdu_type.0);
+        buf.put_u8(self.pdu_type.into());
         buf.put_u8(self.version);
         buf.put_u8(self.resvd);
         buf.put_u8(self.max_area_addr);
@@ -55,21 +44,24 @@ impl IsisPacket {
             L1Lsp(v) => v.emit(buf),
             Csnp(v) => v.emit(buf),
             Psnp(v) => v.emit(buf),
+            Unknown(_) => {}
         }
     }
 }
 
 #[derive(Debug, NomBE)]
-#[nom(Selector = "IsisPduType")]
+#[nom(Selector = "IsisType")]
 pub enum IsisPdu {
-    #[nom(Selector = "IsisPduType(ISIS_L1LAN_HELLO_PDU)")]
+    #[nom(Selector = "IsisType::L1Hello")]
     L1Hello(IsisL1Hello),
-    #[nom(Selector = "IsisPduType(ISIS_L1LSP_PDU)")]
+    #[nom(Selector = "IsisType::L1Lsp")]
     L1Lsp(IsisL1Lsp),
-    #[nom(Selector = "IsisPduType(ISIS_CSNP_PDU)")]
+    #[nom(Selector = "IsisType::Csnp")]
     Csnp(IsisCsnp),
-    #[nom(Selector = "IsisPduType(ISIS_PSNP_PDU)")]
+    #[nom(Selector = "IsisType::Psnp")]
     Psnp(IsisPsnp),
+    #[nom(Selector = "_")]
+    Unknown(IsisUnknown),
 }
 
 #[derive(Debug, NomBE)]
@@ -527,4 +519,11 @@ impl IsisTlv {
 
 pub fn parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {
     IsisPacket::parse_be(input)
+}
+
+#[derive(Debug, NomBE)]
+pub struct IsisUnknown {
+    #[nom(Ignore)]
+    pub typ: IsisType,
+    pub payload: Vec<u8>,
 }
