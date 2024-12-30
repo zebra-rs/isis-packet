@@ -7,7 +7,7 @@ use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
 use super::sub::{IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvRouterCap};
-use super::IsisType;
+use super::{IsisTlvType, IsisType};
 use crate::util::{many0, ParseBe};
 
 // IS-IS discriminator.
@@ -164,48 +164,34 @@ impl IsisPsnp {
     }
 }
 
-// TLVs.
-pub const ISIS_TLV_AREA_ADDR: u8 = 1;
-pub const ISIS_TLV_IS_NEIGHBOR: u8 = 6;
-pub const ISIS_TLV_PADDING: u8 = 8;
-pub const ISIS_TLV_LSP_ENTRIES: u8 = 9;
-pub const ISIS_TLV_EXT_IS_REACH: u8 = 22;
-pub const ISIS_TLV_PROT_SUPPORTED: u8 = 129;
-pub const ISIS_TLV_IPV4_IF_ADDR: u8 = 132;
-pub const ISIS_TLV_TE_ROUTER_ID: u8 = 134;
-pub const ISIS_TLV_EXT_IP_REACH: u8 = 135;
-pub const ISIS_TLV_DYNAMIC_HOSTNAME: u8 = 137;
-pub const ISIS_TLV_IPV6_REACH: u8 = 236;
-pub const ISIS_TLV_ROUTER_CAP: u8 = 242;
-
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisTlvType")]
 pub enum IsisTlv {
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_AREA_ADDR)")]
+    #[nom(Selector = "IsisTlvType::AreaAddr")]
     AreaAddr(IsisTlvAreaAddr),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_IS_NEIGHBOR)")]
+    #[nom(Selector = "IsisTlvType::IsNeighbor")]
     IsNeighbor(IsisTlvIsNeighbor),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_PADDING)")]
+    #[nom(Selector = "IsisTlvType::Padding")]
     Padding(IsisTlvPadding),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_LSP_ENTRIES)")]
+    #[nom(Selector = "IsisTlvType::LspEntries")]
     LspEntries(IsisTlvLspEntries),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_EXT_IS_REACH)")]
+    #[nom(Selector = "IsisTlvType::ExtIsReach")]
     ExtIsReach(IsisTlvExtIsReach),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_PROT_SUPPORTED)")]
+    #[nom(Selector = "IsisTlvType::ProtSupported")]
     ProtSupported(IsisTlvProtSupported),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_IPV4_IF_ADDR)")]
+    #[nom(Selector = "IsisTlvType::Ipv4IfAddr")]
     Ipv4IfAddr(IsisTlvIpv4IfAddr),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_TE_ROUTER_ID)")]
+    #[nom(Selector = "IsisTlvType::TeRouterId")]
     TeRouterId(IsisTlvTeRouterId),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_EXT_IP_REACH)")]
+    #[nom(Selector = "IsisTlvType::ExtIpReach")]
     ExtIpReach(IsisTlvExtIpReach),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_DYNAMIC_HOSTNAME)")]
+    #[nom(Selector = "IsisTlvType::DynamicHostname")]
     Hostname(IsisTlvHostname),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_IPV6_REACH)")]
+    #[nom(Selector = "IsisTlvType::Ipv6Reach")]
     Ipv6Reach(IsisTlvIpv6Reach),
-    #[nom(Selector = "IsisTlvType(ISIS_TLV_ROUTER_CAP)")]
+    #[nom(Selector = "IsisTlvType::RouterCap")]
     RouterCap(IsisTlvRouterCap),
-    #[nom(Selector = "IsisTlvType(_)")]
+    #[nom(Selector = "_")]
     Unknown(IsisTlvUnknown),
 }
 
@@ -250,7 +236,7 @@ pub struct IsisTlvAreaAddr {
 
 impl TlvEmitter for IsisTlvAreaAddr {
     fn typ(&self) -> u8 {
-        ISIS_TLV_AREA_ADDR
+        IsisTlvType::AreaAddr.into()
     }
 
     fn len(&self) -> u8 {
@@ -269,7 +255,7 @@ pub struct IsisTlvIsNeighbor {
 
 impl TlvEmitter for IsisTlvIsNeighbor {
     fn typ(&self) -> u8 {
-        ISIS_TLV_AREA_ADDR
+        IsisTlvType::IsNeighbor.into()
     }
 
     fn len(&self) -> u8 {
@@ -288,7 +274,7 @@ pub struct IsisTlvPadding {
 
 impl TlvEmitter for IsisTlvPadding {
     fn typ(&self) -> u8 {
-        ISIS_TLV_AREA_ADDR
+        IsisTlvType::Padding.into()
     }
 
     fn len(&self) -> u8 {
@@ -324,7 +310,7 @@ pub struct IsisTlvLspEntries {
 
 impl TlvEmitter for IsisTlvLspEntries {
     fn typ(&self) -> u8 {
-        ISIS_TLV_LSP_ENTRIES
+        IsisTlvType::LspEntries.into()
     }
 
     fn len(&self) -> u8 {
@@ -345,7 +331,7 @@ pub struct IsisTlvProtSupported {
 
 impl TlvEmitter for IsisTlvProtSupported {
     fn typ(&self) -> u8 {
-        ISIS_TLV_PROT_SUPPORTED
+        IsisTlvType::ProtSupported.into()
     }
 
     fn len(&self) -> u8 {
@@ -364,7 +350,7 @@ pub struct IsisTlvIpv4IfAddr {
 
 impl TlvEmitter for IsisTlvIpv4IfAddr {
     fn typ(&self) -> u8 {
-        ISIS_TLV_IPV4_IF_ADDR
+        IsisTlvType::Ipv4IfAddr.into()
     }
 
     fn len(&self) -> u8 {
@@ -383,7 +369,7 @@ pub struct IsisTlvTeRouterId {
 
 impl TlvEmitter for IsisTlvTeRouterId {
     fn typ(&self) -> u8 {
-        ISIS_TLV_TE_ROUTER_ID
+        IsisTlvType::TeRouterId.into()
     }
 
     fn len(&self) -> u8 {
@@ -402,7 +388,7 @@ pub struct IsisTlvHostname {
 
 impl TlvEmitter for IsisTlvHostname {
     fn typ(&self) -> u8 {
-        ISIS_TLV_TE_ROUTER_ID
+        IsisTlvType::DynamicHostname.into()
     }
 
     fn len(&self) -> u8 {
@@ -416,7 +402,7 @@ impl TlvEmitter for IsisTlvHostname {
 
 #[derive(Debug, Default, NomBE)]
 pub struct IsisTlvUnknown {
-    pub typ: u8,
+    pub typ: IsisTlvType,
     pub len: u8,
     pub values: Vec<u8>,
 }
@@ -424,7 +410,7 @@ pub struct IsisTlvUnknown {
 impl IsisTlvUnknown {
     pub fn parse_tlv(input: &[u8], tl: IsisTypeLen) -> IResult<&[u8], Self> {
         let tlv = IsisTlvUnknown {
-            typ: tl.typ.0,
+            typ: tl.typ.into(),
             len: tl.len,
             values: Vec::new(),
         };
@@ -434,7 +420,7 @@ impl IsisTlvUnknown {
 
 impl TlvEmitter for IsisTlvUnknown {
     fn typ(&self) -> u8 {
-        self.typ
+        self.typ.into()
     }
 
     fn len(&self) -> u8 {
@@ -442,7 +428,7 @@ impl TlvEmitter for IsisTlvUnknown {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.typ);
+        buf.put_u8(self.typ());
         buf.put_u8(self.len);
         buf.put(self.values.as_bytes());
     }
@@ -464,29 +450,6 @@ impl ParseBe<IsisTlvHostname> for IsisTlvHostname {
             hostname: String::from_utf8_lossy(input).to_string(),
         };
         Ok((input, hostname))
-    }
-}
-
-#[derive(Debug, NomBE)]
-pub struct IsisTlvType(pub u8);
-
-impl IsisTlvType {
-    pub fn is_known(&self) -> bool {
-        matches!(
-            self.0,
-            ISIS_TLV_AREA_ADDR
-                | ISIS_TLV_IS_NEIGHBOR
-                | ISIS_TLV_PADDING
-                | ISIS_TLV_LSP_ENTRIES
-                | ISIS_TLV_EXT_IS_REACH
-                | ISIS_TLV_PROT_SUPPORTED
-                | ISIS_TLV_IPV4_IF_ADDR
-                | ISIS_TLV_TE_ROUTER_ID
-                | ISIS_TLV_EXT_IP_REACH
-                | ISIS_TLV_DYNAMIC_HOSTNAME
-                | ISIS_TLV_IPV6_REACH
-                | ISIS_TLV_ROUTER_CAP
-        )
     }
 }
 

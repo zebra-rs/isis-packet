@@ -93,7 +93,7 @@ impl ParseBe<IsisTlvExtIpReach> for IsisTlvExtIpReach {
 
 impl TlvEmitter for IsisTlvExtIpReach {
     fn typ(&self) -> u8 {
-        ISIS_TLV_EXT_IP_REACH
+        IsisTlvType::ExtIpReach.into()
     }
 
     fn len(&self) -> u8 {
@@ -159,7 +159,7 @@ impl ParseBe<IsisTlvIpv6Reach> for IsisTlvIpv6Reach {
 
 impl TlvEmitter for IsisTlvIpv6Reach {
     fn typ(&self) -> u8 {
-        ISIS_TLV_IPV6_REACH
+        IsisTlvType::Ipv6Reach.into()
     }
 
     fn len(&self) -> u8 {

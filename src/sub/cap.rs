@@ -226,7 +226,7 @@ impl IsisTlvRouterCap {
 
 impl TlvEmitter for IsisTlvRouterCap {
     fn typ(&self) -> u8 {
-        ISIS_TLV_ROUTER_CAP
+        IsisTlvType::RouterCap.into()
     }
 
     fn len(&self) -> u8 {

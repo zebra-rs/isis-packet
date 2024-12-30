@@ -24,7 +24,7 @@ impl ParseBe<IsisTlvExtIsReach> for IsisTlvExtIsReach {
 
 impl TlvEmitter for IsisTlvExtIsReach {
     fn typ(&self) -> u8 {
-        ISIS_TLV_EXT_IS_REACH
+        IsisTlvType::ExtIsReach.into()
     }
 
     fn len(&self) -> u8 {
