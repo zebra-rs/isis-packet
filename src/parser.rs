@@ -440,6 +440,13 @@ impl ParseBe<IsisTlvHostname> for IsisTlvHostname {
     }
 }
 
+#[derive(Debug, NomBE)]
+pub struct IsisUnknown {
+    #[nom(Ignore)]
+    pub typ: IsisType,
+    pub payload: Vec<u8>,
+}
+
 #[derive(NomBE)]
 pub struct IsisTypeLen {
     pub typ: IsisTlvType,
@@ -469,11 +476,4 @@ impl IsisTlv {
 
 pub fn parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {
     IsisPacket::parse_be(input)
-}
-
-#[derive(Debug, NomBE)]
-pub struct IsisUnknown {
-    #[nom(Ignore)]
-    pub typ: IsisType,
-    pub payload: Vec<u8>,
 }
