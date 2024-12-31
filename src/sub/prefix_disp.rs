@@ -1,7 +1,10 @@
 use std::fmt::{Display, Formatter, Result};
 
 use super::prefix::IsisSubTlv;
-use super::*;
+use super::{
+    IsisSubPrefixSid, IsisTlvExtIpReach, IsisTlvExtIpReachEntry, IsisTlvIpv6Reach,
+    IsisTlvIpv6ReachEntry,
+};
 
 impl Display for IsisTlvExtIpReach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -65,7 +68,7 @@ impl Display for IsisTlvIpv6ReachEntry {
 
 impl Display for IsisSubTlv {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        use prefix::IsisSubTlv::*;
+        use IsisSubTlv::*;
         match self {
             PrefixSid(v) => write!(f, "{}", v),
             Unknown(v) => write!(f, "Unknown: Code {}, Length {}", v.code, v.len),

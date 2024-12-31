@@ -1,6 +1,10 @@
 use std::fmt::{Display, Formatter, Result};
 
-use super::*;
+use crate::{
+    IsisCsnp, IsisL1Hello, IsisL1Lsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisTlv,
+    IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor, IsisTlvLspEntries,
+    IsisTlvPadding, IsisTlvProtSupported, IsisTlvTeRouterId,
+};
 
 impl Display for IsisPacket {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {

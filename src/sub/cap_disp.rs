@@ -1,7 +1,10 @@
 use std::fmt::{Display, Formatter, Result};
 
 use super::cap::IsisSubTlv;
-use super::*;
+use super::{
+    IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
+    IsisSubSegmentRoutingLB, IsisTlvRouterCap,
+};
 
 impl Display for IsisTlvRouterCap {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {

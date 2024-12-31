@@ -1,7 +1,7 @@
 use bytes::{BufMut, BytesMut};
 use nom_derive::*;
 
-use crate::TlvEmitter;
+use crate::util::TlvEmitter;
 
 #[derive(Debug, NomBE)]
 pub struct IsisSubTlvUnknown {

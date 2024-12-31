@@ -8,7 +8,7 @@ use nom_derive::*;
 
 use super::sub::{IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvRouterCap};
 use super::{IsisTlvType, IsisType};
-use crate::util::{many0, ParseBe};
+use crate::util::{many0, ParseBe, TlvEmitter};
 
 // IS-IS discriminator.
 const ISIS_IRDP_DISC: u8 = 0x83;
@@ -193,19 +193,6 @@ pub enum IsisTlv {
     RouterCap(IsisTlvRouterCap),
     #[nom(Selector = "_")]
     Unknown(IsisTlvUnknown),
-}
-
-#[allow(clippy::len_without_is_empty)]
-pub trait TlvEmitter {
-    fn typ(&self) -> u8;
-    fn len(&self) -> u8;
-    fn emit(&self, buf: &mut BytesMut);
-
-    fn tlv_emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.typ());
-        buf.put_u8(self.len());
-        self.emit(buf);
-    }
 }
 
 impl IsisTlv {

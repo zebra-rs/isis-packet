@@ -5,11 +5,10 @@ use nom::number::complete::{be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
-use crate::sub::IsisSubCodeLen;
-use crate::util::{many0, u32_u8_3, ParseBe};
-use crate::*;
+use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
+use crate::IsisTlvType;
 
-use super::{IsisCapCode, IsisSubTlvUnknown};
+use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisCapCode")]

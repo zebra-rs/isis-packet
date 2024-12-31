@@ -1,7 +1,10 @@
 use std::fmt::{Display, Formatter, Result};
 
 use super::neigh::IsisSubTlv;
-use super::*;
+use super::{
+    IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubLanAdjSid, IsisTlvExtIsReach,
+    IsisTlvExtIsReachEntry,
+};
 
 impl Display for IsisTlvExtIsReach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {

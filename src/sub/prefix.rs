@@ -8,11 +8,10 @@ use nom::number::complete::{be_u32, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
-use crate::sub::IsisSubCodeLen;
-use crate::util::{many0, ParseBe};
-use crate::*;
+use crate::util::{many0, ParseBe, TlvEmitter};
+use crate::IsisTlvType;
 
-use super::{IsisPrefixCode, IsisSubTlvUnknown};
+use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisPrefixCode")]
