@@ -4,13 +4,12 @@ use bytes::{BufMut, BytesMut};
 use nom::number::complete::{be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
-use util::u32_u8_3;
 
 use crate::sub::IsisSubCodeLen;
-use crate::util::{many0, ParseBe};
+use crate::util::{many0, u32_u8_3, ParseBe};
 use crate::*;
 
-use super::IsisCapCode;
+use super::{IsisCapCode, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisCapCode")]
@@ -23,6 +22,8 @@ pub enum IsisSubTlv {
     SegmentRoutingLB(IsisSubSegmentRoutingLB),
     #[nom(Selector = "IsisCapCode::NodeMaxSidDepth")]
     NodeMaxSidDepth(IsisSubNodeMaxSidDepth),
+    #[nom(Selector = "_")]
+    Unknown(IsisSubTlvUnknown),
 }
 
 impl IsisSubTlv {
@@ -32,7 +33,11 @@ impl IsisSubTlv {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
         let (sub, input) = input.split_at(cl.len as usize);
-        let (_, val) = Self::parse_be(sub, cl.code.into())?;
+        let (_, mut val) = Self::parse_be(sub, cl.code.into())?;
+        if let IsisSubTlv::Unknown(ref mut v) = val {
+            v.code = cl.code;
+            v.len = cl.len;
+        }
         Ok((input, val))
     }
 
@@ -43,6 +48,7 @@ impl IsisSubTlv {
             SegmentRoutingAlgo(v) => v.len(),
             SegmentRoutingLB(v) => v.len(),
             NodeMaxSidDepth(v) => v.len(),
+            Unknown(v) => v.len,
         }
     }
 
@@ -53,6 +59,7 @@ impl IsisSubTlv {
             SegmentRoutingAlgo(v) => v.tlv_emit(buf),
             SegmentRoutingLB(v) => v.tlv_emit(buf),
             NodeMaxSidDepth(v) => v.tlv_emit(buf),
+            Unknown(v) => v.tlv_emit(buf),
         }
     }
 }

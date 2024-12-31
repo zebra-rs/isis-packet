@@ -6,7 +6,7 @@ use nom::number::complete::{be_u24, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
-use super::IsisNeighCode;
+use super::{IsisNeighCode, IsisSubTlvUnknown};
 use crate::sub::IsisSubCodeLen;
 use crate::util::{many0, u32_u8_3, ParseBe};
 use crate::*;
@@ -80,11 +80,6 @@ impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
     }
 }
 
-// Sub TLV codepoints for Neighbor Information.
-// const ISIS_CODE_IPV4_IF_ADDR: u8 = 6;
-// const ISIS_CODE_IPV4_NEIGH_ADDR: u8 = 8;
-// const ISIS_CODE_LAN_ADJ_SID: u8 = 32;
-
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisNeighCode")]
 pub enum IsisSubTlv {
@@ -105,7 +100,11 @@ impl IsisSubTlv {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
         let (sub, input) = input.split_at(cl.len as usize);
-        let (_, val) = Self::parse_be(sub, cl.code.into())?;
+        let (_, mut val) = Self::parse_be(sub, cl.code.into())?;
+        if let IsisSubTlv::Unknown(ref mut v) = val {
+            v.code = cl.code;
+            v.len = cl.len;
+        }
         Ok((input, val))
     }
 
@@ -115,7 +114,7 @@ impl IsisSubTlv {
             Ipv4IfAddr(v) => v.len(),
             Ipv4NeighAddr(v) => v.len(),
             LanAdjSid(v) => v.len(),
-            _ => 0,
+            Unknown(v) => v.len,
         }
     }
 
@@ -125,9 +124,7 @@ impl IsisSubTlv {
             Ipv4IfAddr(v) => v.tlv_emit(buf),
             Ipv4NeighAddr(v) => v.tlv_emit(buf),
             LanAdjSid(v) => v.tlv_emit(buf),
-            _ => {
-                //
-            }
+            Unknown(v) => v.tlv_emit(buf),
         }
     }
 }
@@ -194,11 +191,4 @@ impl TlvEmitter for IsisSubLanAdjSid {
         buf.put(&self.system_id[..]);
         buf.put(&u32_u8_3(self.sid)[..]);
     }
-}
-
-#[derive(Debug, Default, NomBE)]
-pub struct IsisSubTlvUnknown {
-    pub typ: u8,
-    pub length: u8,
-    pub values: Vec<u8>,
 }

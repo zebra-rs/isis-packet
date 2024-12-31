@@ -12,7 +12,7 @@ use crate::sub::IsisSubCodeLen;
 use crate::util::{many0, ParseBe};
 use crate::*;
 
-use super::IsisPrefixCode;
+use super::{IsisPrefixCode, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE)]
 #[nom(Selector = "IsisPrefixCode")]
@@ -21,29 +21,6 @@ pub enum IsisSubTlv {
     PrefixSid(IsisSubPrefixSid),
     #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
-}
-
-#[derive(Debug, NomBE)]
-pub struct IsisSubTlvUnknown {
-    #[nom(Ignore)]
-    pub code: u8,
-    #[nom(Ignore)]
-    pub len: u8,
-    pub data: Vec<u8>,
-}
-
-impl TlvEmitter for IsisSubTlvUnknown {
-    fn typ(&self) -> u8 {
-        self.code
-    }
-
-    fn len(&self) -> u8 {
-        self.len
-    }
-
-    fn emit(&self, buf: &mut BytesMut) {
-        buf.put(&self.data[..]);
-    }
 }
 
 #[derive(Debug, NomBE)]

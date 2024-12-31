@@ -26,6 +26,7 @@ impl Display for IsisSubTlv {
             SegmentRoutingAlgo(v) => write!(f, "{}", v),
             SegmentRoutingLB(v) => write!(f, "{}", v),
             NodeMaxSidDepth(v) => write!(f, "{}", v),
+            Unknown(v) => write!(f, "Unknown Code: {} Len: {}", v.code, v.len),
         }
     }
 }
