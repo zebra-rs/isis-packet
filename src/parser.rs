@@ -410,7 +410,7 @@ pub struct IsisTlvUnknown {
 impl IsisTlvUnknown {
     pub fn parse_tlv(input: &[u8], tl: IsisTypeLen) -> IResult<&[u8], Self> {
         let tlv = IsisTlvUnknown {
-            typ: tl.typ.into(),
+            typ: tl.typ,
             len: tl.len,
             values: Vec::new(),
         };

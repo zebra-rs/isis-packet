@@ -6,26 +6,22 @@ use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use util::u32_u8_3;
 
-use crate::sub::{IsisSubCode, IsisSubCodeLen};
+use crate::sub::IsisSubCodeLen;
 use crate::util::{many0, ParseBe};
 use crate::*;
 
-// Sub TLV codepoints for Router Capability.
-const ISIS_CODE_SEGMENT_ROUTING_CAP: u8 = 2;
-const ISIS_CODE_SEGMENT_ROUTING_ALGO: u8 = 19;
-const ISIS_CODE_SEGMENT_ROUTING_LB: u8 = 22;
-const ISIS_CODE_NODE_MAX_SID_DEPTH: u8 = 23;
+use super::IsisCapCode;
 
 #[derive(Debug, NomBE)]
-#[nom(Selector = "IsisSubCode")]
+#[nom(Selector = "IsisCapCode")]
 pub enum IsisSubTlv {
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_SEGMENT_ROUTING_CAP)")]
+    #[nom(Selector = "IsisCapCode::SegmentRoutingCap")]
     SegmentRoutingCap(IsisSubSegmentRoutingCap),
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_SEGMENT_ROUTING_ALGO)")]
+    #[nom(Selector = "IsisCapCode::SegmentRoutingAlgo")]
     SegmentRoutingAlgo(IsisSubSegmentRoutingAlgo),
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_SEGMENT_ROUTING_LB)")]
+    #[nom(Selector = "IsisCapCode::SegmentRoutingLb")]
     SegmentRoutingLB(IsisSubSegmentRoutingLB),
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_NODE_MAX_SID_DEPTH)")]
+    #[nom(Selector = "IsisCapCode::NodeMaxSidDepth")]
     NodeMaxSidDepth(IsisSubNodeMaxSidDepth),
 }
 
@@ -36,7 +32,7 @@ impl IsisSubTlv {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
         let (sub, input) = input.split_at(cl.len as usize);
-        let (_, val) = Self::parse_be(sub, cl.code)?;
+        let (_, val) = Self::parse_be(sub, cl.code.into())?;
         Ok((input, val))
     }
 
@@ -104,7 +100,7 @@ pub struct IsisSubSegmentRoutingCap {
 
 impl TlvEmitter for IsisSubSegmentRoutingCap {
     fn typ(&self) -> u8 {
-        ISIS_CODE_SEGMENT_ROUTING_CAP
+        IsisCapCode::SegmentRoutingCap.into()
     }
 
     fn len(&self) -> u8 {
@@ -132,7 +128,7 @@ pub struct IsisSubSegmentRoutingAlgo {
 
 impl TlvEmitter for IsisSubSegmentRoutingAlgo {
     fn typ(&self) -> u8 {
-        ISIS_CODE_SEGMENT_ROUTING_ALGO
+        IsisCapCode::SegmentRoutingAlgo.into()
     }
 
     fn len(&self) -> u8 {
@@ -155,7 +151,7 @@ pub struct IsisSubSegmentRoutingLB {
 
 impl TlvEmitter for IsisSubSegmentRoutingLB {
     fn typ(&self) -> u8 {
-        ISIS_CODE_SEGMENT_ROUTING_LB
+        IsisCapCode::SegmentRoutingLb.into()
     }
 
     fn len(&self) -> u8 {
@@ -184,7 +180,7 @@ pub struct IsisSubNodeMaxSidDepth {
 
 impl TlvEmitter for IsisSubNodeMaxSidDepth {
     fn typ(&self) -> u8 {
-        ISIS_CODE_NODE_MAX_SID_DEPTH
+        IsisCapCode::NodeMaxSidDepth.into()
     }
 
     fn len(&self) -> u8 {

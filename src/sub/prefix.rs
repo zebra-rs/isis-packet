@@ -8,18 +8,42 @@ use nom::number::complete::{be_u32, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
-use crate::sub::{IsisSubCode, IsisSubCodeLen};
+use crate::sub::IsisSubCodeLen;
 use crate::util::{many0, ParseBe};
 use crate::*;
 
-// Sub TLV codepoints for Prefix Reachability.
-const ISIS_CODE_PREFIX_SID: u8 = 3;
+use super::IsisPrefixCode;
 
 #[derive(Debug, NomBE)]
-#[nom(Selector = "IsisSubCode")]
+#[nom(Selector = "IsisPrefixCode")]
 pub enum IsisSubTlv {
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_PREFIX_SID)")]
+    #[nom(Selector = "IsisPrefixCode::PrefixSid")]
     PrefixSid(IsisSubPrefixSid),
+    #[nom(Selector = "_")]
+    Unknown(IsisSubTlvUnknown),
+}
+
+#[derive(Debug, NomBE)]
+pub struct IsisSubTlvUnknown {
+    #[nom(Ignore)]
+    pub code: u8,
+    #[nom(Ignore)]
+    pub len: u8,
+    pub data: Vec<u8>,
+}
+
+impl TlvEmitter for IsisSubTlvUnknown {
+    fn typ(&self) -> u8 {
+        self.code
+    }
+
+    fn len(&self) -> u8 {
+        self.len
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.data[..]);
+    }
 }
 
 #[derive(Debug, NomBE)]
@@ -31,7 +55,7 @@ pub struct IsisSubPrefixSid {
 
 impl TlvEmitter for IsisSubPrefixSid {
     fn typ(&self) -> u8 {
-        ISIS_CODE_PREFIX_SID
+        IsisPrefixCode::PrefixSid.into()
     }
 
     fn len(&self) -> u8 {
@@ -52,7 +76,11 @@ impl IsisSubTlv {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
         let (sub, input) = input.split_at(cl.len as usize);
-        let (_, val) = Self::parse_be(sub, cl.code)?;
+        let (_, mut val) = Self::parse_be(sub, cl.code.into())?;
+        if let IsisSubTlv::Unknown(ref mut v) = val {
+            v.code = cl.code;
+            v.len = cl.len;
+        }
         Ok((input, val))
     }
 
@@ -60,6 +88,7 @@ impl IsisSubTlv {
         use IsisSubTlv::*;
         match self {
             PrefixSid(v) => v.len(),
+            Unknown(v) => v.len,
         }
     }
 
@@ -67,6 +96,7 @@ impl IsisSubTlv {
         use IsisSubTlv::*;
         match self {
             PrefixSid(v) => v.tlv_emit(buf),
+            Unknown(v) => v.tlv_emit(buf),
         }
     }
 }

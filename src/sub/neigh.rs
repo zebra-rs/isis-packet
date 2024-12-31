@@ -6,7 +6,8 @@ use nom::number::complete::{be_u24, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
-use crate::sub::{IsisSubCode, IsisSubCodeLen};
+use super::IsisNeighCode;
+use crate::sub::IsisSubCodeLen;
 use crate::util::{many0, u32_u8_3, ParseBe};
 use crate::*;
 
@@ -55,7 +56,6 @@ impl IsisTlvExtIsReachEntry {
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(&self.neighbor_id[..]);
         buf.put(&u32_u8_3(self.metric)[..]);
-        //buf.put(&self.metric_raw[..]);
         buf.put_u8(self.sub_len());
         for sub in self.subs.iter() {
             sub.emit(buf);
@@ -81,20 +81,20 @@ impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
 }
 
 // Sub TLV codepoints for Neighbor Information.
-const ISIS_CODE_IPV4_IF_ADDR: u8 = 6;
-const ISIS_CODE_IPV4_NEIGH_ADDR: u8 = 8;
-const ISIS_CODE_LAN_ADJ_SID: u8 = 32;
+// const ISIS_CODE_IPV4_IF_ADDR: u8 = 6;
+// const ISIS_CODE_IPV4_NEIGH_ADDR: u8 = 8;
+// const ISIS_CODE_LAN_ADJ_SID: u8 = 32;
 
 #[derive(Debug, NomBE)]
-#[nom(Selector = "IsisSubCode")]
+#[nom(Selector = "IsisNeighCode")]
 pub enum IsisSubTlv {
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_IPV4_IF_ADDR)")]
+    #[nom(Selector = "IsisNeighCode::Ipv4IfAddr")]
     Ipv4IfAddr(IsisSubIpv4IfAddr),
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_IPV4_NEIGH_ADDR)")]
+    #[nom(Selector = "IsisNeighCode::Ipv4NeighAddr")]
     Ipv4NeighAddr(IsisSubIpv4NeighAddr),
-    #[nom(Selector = "IsisSubCode(ISIS_CODE_LAN_ADJ_SID)")]
+    #[nom(Selector = "IsisNeighCode::LanAdjSid")]
     LanAdjSid(IsisSubLanAdjSid),
-    #[nom(Selector = "IsisSubCode(_)")]
+    #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
 }
 
@@ -105,7 +105,7 @@ impl IsisSubTlv {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
         let (sub, input) = input.split_at(cl.len as usize);
-        let (_, val) = Self::parse_be(sub, cl.code)?;
+        let (_, val) = Self::parse_be(sub, cl.code.into())?;
         Ok((input, val))
     }
 
@@ -139,7 +139,7 @@ pub struct IsisSubIpv4IfAddr {
 
 impl TlvEmitter for IsisSubIpv4IfAddr {
     fn typ(&self) -> u8 {
-        ISIS_CODE_IPV4_IF_ADDR
+        IsisNeighCode::Ipv4IfAddr.into()
     }
 
     fn len(&self) -> u8 {
@@ -158,7 +158,7 @@ pub struct IsisSubIpv4NeighAddr {
 
 impl TlvEmitter for IsisSubIpv4NeighAddr {
     fn typ(&self) -> u8 {
-        ISIS_CODE_IPV4_IF_ADDR
+        IsisNeighCode::Ipv4NeighAddr.into()
     }
 
     fn len(&self) -> u8 {
@@ -181,7 +181,7 @@ pub struct IsisSubLanAdjSid {
 
 impl TlvEmitter for IsisSubLanAdjSid {
     fn typ(&self) -> u8 {
-        ISIS_CODE_LAN_ADJ_SID
+        IsisNeighCode::LanAdjSid.into()
     }
 
     fn len(&self) -> u8 {

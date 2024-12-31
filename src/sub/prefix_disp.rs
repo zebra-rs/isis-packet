@@ -68,6 +68,7 @@ impl Display for IsisSubTlv {
         use prefix::IsisSubTlv::*;
         match self {
             PrefixSid(v) => write!(f, "{}", v),
+            Unknown(v) => write!(f, "Unknown: Code {}, Length {}", v.code, v.len),
         }
     }
 }
