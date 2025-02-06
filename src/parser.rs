@@ -6,7 +6,10 @@ use nom::number::complete::be_u32;
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
-use super::sub::{IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvRouterCap};
+use super::sub::{
+    IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
+    IsisTlvRouterCap,
+};
 use super::{IsisTlvType, IsisType};
 use crate::util::{many0, ParseBe, TlvEmitter};
 
@@ -187,8 +190,12 @@ pub enum IsisTlv {
     ExtIpReach(IsisTlvExtIpReach),
     #[nom(Selector = "IsisTlvType::DynamicHostname")]
     Hostname(IsisTlvHostname),
+    #[nom(Selector = "IsisTlvType::MtIpReach")]
+    MtIpReach(IsisTlvMtIpReach),
     #[nom(Selector = "IsisTlvType::Ipv6Reach")]
     Ipv6Reach(IsisTlvIpv6Reach),
+    #[nom(Selector = "IsisTlvType::MtIpv6Reach")]
+    MtIpv6Reach(IsisTlvMtIpv6Reach),
     #[nom(Selector = "IsisTlvType::RouterCap")]
     RouterCap(IsisTlvRouterCap),
     #[nom(Selector = "_")]
@@ -209,7 +216,9 @@ impl IsisTlv {
             TeRouterId(v) => v.tlv_emit(buf),
             ExtIpReach(v) => v.tlv_emit(buf),
             Hostname(v) => v.tlv_emit(buf),
+            MtIpReach(v) => v.tlv_emit(buf),
             Ipv6Reach(v) => v.tlv_emit(buf),
+            MtIpv6Reach(v) => v.tlv_emit(buf),
             RouterCap(v) => v.tlv_emit(buf),
             Unknown(v) => v.emit(buf),
         }

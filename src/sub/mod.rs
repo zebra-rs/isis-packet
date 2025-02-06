@@ -18,7 +18,7 @@ pub mod neigh_disp;
 pub mod prefix;
 pub use prefix::{
     IsisSubPrefixSid, IsisTlvExtIpReach, IsisTlvExtIpReachEntry, IsisTlvIpv6Reach,
-    IsisTlvIpv6ReachEntry,
+    IsisTlvIpv6ReachEntry, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
 };
 pub mod prefix_code;
 pub use prefix_code::IsisPrefixCode;

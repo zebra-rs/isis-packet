@@ -4,7 +4,7 @@ use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use ipnet::{Ipv4Net, Ipv6Net};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u32, be_u8};
+use nom::number::complete::{be_u16, be_u32, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
@@ -112,6 +112,42 @@ impl TlvEmitter for IsisTlvExtIpReach {
 }
 
 #[derive(Debug)]
+pub struct IsisTlvMtIpReach {
+    pub mt: MultiTopologyId,
+    pub entries: Vec<IsisTlvExtIpReachEntry>,
+}
+
+impl ParseBe<IsisTlvMtIpReach> for IsisTlvMtIpReach {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, mt) = be_u16(input)?;
+        let (input, entries) = many0(IsisTlvExtIpReachEntry::parse_be)(input)?;
+        Ok((
+            input,
+            Self {
+                mt: mt.into(),
+                entries,
+            },
+        ))
+    }
+}
+
+impl TlvEmitter for IsisTlvMtIpReach {
+    fn typ(&self) -> u8 {
+        IsisTlvType::MtIpReach.into()
+    }
+
+    fn len(&self) -> u8 {
+        let len: u8 = self.entries.iter().map(|entry| entry.len()).sum();
+        len + 2
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u16(self.mt.into());
+        self.entries.iter().for_each(|entry| entry.emit(buf));
+    }
+}
+
+#[derive(Debug)]
 pub struct IsisTlvExtIpReachEntry {
     pub metric: u32,
     pub flags: Ipv4ControlInfo,
@@ -173,6 +209,50 @@ impl TlvEmitter for IsisTlvIpv6Reach {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
+        self.entries.iter().for_each(|entry| entry.emit(buf));
+    }
+}
+
+#[bitfield(u16, debug = true)]
+pub struct MultiTopologyId {
+    #[bits(4)]
+    pub resvd: u8,
+    #[bits(12)]
+    pub id: u16,
+}
+
+#[derive(Debug)]
+pub struct IsisTlvMtIpv6Reach {
+    pub mt: MultiTopologyId,
+    pub entries: Vec<IsisTlvIpv6ReachEntry>,
+}
+
+impl ParseBe<IsisTlvMtIpv6Reach> for IsisTlvMtIpv6Reach {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, mt) = be_u16(input)?;
+        let (input, entries) = many0(IsisTlvIpv6ReachEntry::parse_be)(input)?;
+        Ok((
+            input,
+            Self {
+                mt: mt.into(),
+                entries,
+            },
+        ))
+    }
+}
+
+impl TlvEmitter for IsisTlvMtIpv6Reach {
+    fn typ(&self) -> u8 {
+        IsisTlvType::MtIpv6Reach.into()
+    }
+
+    fn len(&self) -> u8 {
+        let len: u8 = self.entries.iter().map(|entry| entry.len()).sum();
+        len + 2
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u16(self.mt.into());
         self.entries.iter().for_each(|entry| entry.emit(buf));
     }
 }
