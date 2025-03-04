@@ -103,7 +103,7 @@ impl IsisLsp {
 #[derive(Debug, NomBE)]
 pub struct IsisHello {
     pub circuit_type: u8,
-    pub source_id: [u8; 6],
+    pub source_id: IsisSysId,
     pub holding_timer: u16,
     pub pdu_len: u16,
     pub priority: u8,
@@ -115,7 +115,7 @@ pub struct IsisHello {
 impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.circuit_type);
-        buf.put(&self.source_id[..]);
+        buf.put(&self.source_id.sys_id[..]);
         buf.put_u16(self.holding_timer);
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
@@ -130,7 +130,7 @@ impl IsisHello {
 #[derive(Debug, NomBE)]
 pub struct IsisCsnp {
     pub pdu_len: u16,
-    pub source_id: [u8; 6],
+    pub source_id: IsisSysId,
     pub source_id_curcuit: u8,
     pub start: [u8; 8],
     pub end: [u8; 8],
@@ -142,7 +142,7 @@ impl IsisCsnp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
-        buf.put(&self.source_id[..]);
+        buf.put(&self.source_id.sys_id[..]);
         buf.put_u8(self.source_id_curcuit);
         buf.put(&self.start[..]);
         buf.put(&self.end[..]);
@@ -155,7 +155,7 @@ impl IsisCsnp {
 #[derive(Debug, NomBE)]
 pub struct IsisPsnp {
     pub pdu_len: u16,
-    pub source_id: [u8; 6],
+    pub source_id: IsisSysId,
     pub source_id_curcuit: u8,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
@@ -165,7 +165,7 @@ impl IsisPsnp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
-        buf.put(&self.source_id[..]);
+        buf.put(&self.source_id.sys_id[..]);
         buf.put_u8(self.source_id_curcuit);
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
@@ -229,6 +229,11 @@ impl IsisTlv {
             Unknown(v) => v.emit(buf),
         }
     }
+}
+
+#[derive(Debug, NomBE)]
+pub struct IsisSysId {
+    pub sys_id: [u8; 6],
 }
 
 #[derive(Debug, NomBE)]

@@ -9,7 +9,7 @@ repository = "https://github.com/zebra-rs/isis-packet.git"
 authors = ["Kunihiro Ishiguro <kunihiro@zebra.dev>"]
 categories = ["parser-implementations"]
 readme = "README.md"
-edition = "2018"
+edition = "2024"
 
 include = [
   "LICENSE-*",

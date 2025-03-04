@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisTlv,
+    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisSysId, IsisTlv,
     IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor, IsisTlvLspEntries,
     IsisTlvPadding, IsisTlvProtSupported, IsisTlvTeRouterId,
 };
@@ -72,7 +72,7 @@ impl Display for IsisHello {
             f,
             r#"== IS-IS Hello ==
  Circuit type: {}
- Source ID: {:?}
+ Source ID: {}
  Holding timer: {}
  PDU length: {}
  Priority: {}
@@ -116,7 +116,7 @@ impl Display for IsisPsnp {
             f,
             r#"== IS-IS PSNP ==
  PDU length: {}
- Source ID: {:?}
+ Source ID: {}
  Source ID Curcuit: {}"#,
             self.pdu_len, self.source_id, self.source_id_curcuit
         )?;
@@ -150,9 +150,28 @@ impl Display for IsisTlv {
     }
 }
 
+impl Display for IsisSysId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "{:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}",
+            self.sys_id[0],
+            self.sys_id[1],
+            self.sys_id[2],
+            self.sys_id[3],
+            self.sys_id[4],
+            self.sys_id[5],
+        )
+    }
+}
+
 impl Display for IsisTlvAreaAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Area address: {:?}", self.area_addr)
+        write!(
+            f,
+            "  Area address: ({}) {:02x}.{:02x}{:02x}",
+            self.area_addr[0], self.area_addr[1], self.area_addr[2], self.area_addr[3]
+        )
     }
 }
 

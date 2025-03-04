@@ -7,7 +7,7 @@ use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::IsisTlvType;
+use crate::{IsisSysId, IsisTlvType};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -171,7 +171,7 @@ impl TlvEmitter for IsisSubIpv4NeighAddr {
 pub struct IsisSubLanAdjSid {
     pub flags: u8,
     pub weight: u8,
-    pub system_id: [u8; 6],
+    pub system_id: IsisSysId,
     #[nom(Parse = "be_u24")]
     pub sid: u32,
 }
@@ -188,7 +188,7 @@ impl TlvEmitter for IsisSubLanAdjSid {
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags);
         buf.put_u8(self.weight);
-        buf.put(&self.system_id[..]);
+        buf.put(&self.system_id.sys_id[..]);
         buf.put(&u32_u8_3(self.sid)[..]);
     }
 }
