@@ -231,9 +231,15 @@ impl IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisSysId {
     pub sys_id: [u8; 6],
+}
+
+impl Default for IsisSysId {
+    fn default() -> Self {
+        Self { sys_id: [0u8; 6] }
+    }
 }
 
 #[derive(Debug, NomBE)]
