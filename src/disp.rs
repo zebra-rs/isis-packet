@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    IsisCsnp, IsisL1Hello, IsisL1Lsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisTlv,
+    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisTlv,
     IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor, IsisTlvLspEntries,
     IsisTlvPadding, IsisTlvProtSupported, IsisTlvTeRouterId,
 };
@@ -37,7 +37,9 @@ impl Display for IsisPdu {
         use IsisPdu::*;
         match self {
             L1Hello(v) => write!(f, "{}", v),
+            L2Hello(v) => write!(f, "{}", v),
             L1Lsp(v) => write!(f, "{}", v),
+            L2Lsp(v) => write!(f, "{}", v),
             Csnp(v) => write!(f, "{}", v),
             Psnp(v) => write!(f, "{}", v),
             Unknown(_) => write!(f, "Unknown"),
@@ -45,7 +47,7 @@ impl Display for IsisPdu {
     }
 }
 
-impl Display for IsisL1Lsp {
+impl Display for IsisLsp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
@@ -64,11 +66,11 @@ impl Display for IsisL1Lsp {
     }
 }
 
-impl Display for IsisL1Hello {
+impl Display for IsisHello {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS L1 LAN Hello ==
+            r#"== IS-IS Hello ==
  Circuit type: {}
  Source ID: {:?}
  Holding timer: {}

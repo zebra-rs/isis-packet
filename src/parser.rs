@@ -44,7 +44,9 @@ impl IsisPacket {
         buf.put_u8(self.max_area_addr);
         match &self.pdu {
             L1Hello(v) => v.emit(buf),
+            L2Hello(v) => v.emit(buf),
             L1Lsp(v) => v.emit(buf),
+            L2Lsp(v) => v.emit(buf),
             Csnp(v) => v.emit(buf),
             Psnp(v) => v.emit(buf),
             Unknown(_) => {}
@@ -56,9 +58,13 @@ impl IsisPacket {
 #[nom(Selector = "IsisType")]
 pub enum IsisPdu {
     #[nom(Selector = "IsisType::L1Hello")]
-    L1Hello(IsisL1Hello),
+    L1Hello(IsisHello),
+    #[nom(Selector = "IsisType::L2Hello")]
+    L2Hello(IsisHello),
     #[nom(Selector = "IsisType::L1Lsp")]
-    L1Lsp(IsisL1Lsp),
+    L1Lsp(IsisLsp),
+    #[nom(Selector = "IsisType::L2Lsp")]
+    L2Lsp(IsisLsp),
     #[nom(Selector = "IsisType::Csnp")]
     Csnp(IsisCsnp),
     #[nom(Selector = "IsisType::Psnp")]
@@ -68,7 +74,7 @@ pub enum IsisPdu {
 }
 
 #[derive(Debug, NomBE)]
-pub struct IsisL1Lsp {
+pub struct IsisLsp {
     pub pdu_len: u16,
     pub lifetime: u16,
     pub lsp_id: [u8; 8],
@@ -79,7 +85,7 @@ pub struct IsisL1Lsp {
     pub tlvs: Vec<IsisTlv>,
 }
 
-impl IsisL1Lsp {
+impl IsisLsp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
@@ -95,7 +101,7 @@ impl IsisL1Lsp {
 }
 
 #[derive(Debug, NomBE)]
-pub struct IsisL1Hello {
+pub struct IsisHello {
     pub circuit_type: u8,
     pub source_id: [u8; 6],
     pub holding_timer: u16,
@@ -106,7 +112,7 @@ pub struct IsisL1Hello {
     pub tlvs: Vec<IsisTlv>,
 }
 
-impl IsisL1Hello {
+impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.circuit_type);
         buf.put(&self.source_id[..]);
