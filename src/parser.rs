@@ -104,7 +104,7 @@ impl IsisLsp {
 pub struct IsisHello {
     pub circuit_type: u8,
     pub source_id: IsisSysId,
-    pub holding_timer: u16,
+    pub hold_timer: u16,
     pub pdu_len: u16,
     pub priority: u8,
     pub lan_id: [u8; 7],
@@ -116,7 +116,7 @@ impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.circuit_type);
         buf.put(&self.source_id.sys_id[..]);
-        buf.put_u16(self.holding_timer);
+        buf.put_u16(self.hold_timer);
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
         buf.put_u8(self.priority);

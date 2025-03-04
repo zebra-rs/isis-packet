@@ -79,7 +79,7 @@ impl Display for IsisHello {
  LAN ID {:?}"#,
             self.circuit_type,
             self.source_id,
-            self.holding_timer,
+            self.hold_timer,
             self.pdu_len,
             self.priority,
             self.lan_id
