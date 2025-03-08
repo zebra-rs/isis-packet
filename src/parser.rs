@@ -32,6 +32,20 @@ pub struct IsisPacket {
 }
 
 impl IsisPacket {
+    pub fn from(pdu_type: IsisType, pdu: &IsisPdu) -> IsisPacket {
+        IsisPacket {
+            discriminator: 0x83,
+            length_indicator: 27,
+            id_extension: 1,
+            id_length: 0,
+            pdu_type,
+            version: 1,
+            resvd: 0,
+            max_area_addr: 0,
+            pdu: pdu.clone(),
+        }
+    }
+
     pub fn emit(&self, buf: &mut BytesMut) {
         use IsisPdu::*;
         buf.put_u8(self.discriminator);
@@ -54,7 +68,7 @@ impl IsisPacket {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 #[nom(Selector = "IsisType")]
 pub enum IsisPdu {
     #[nom(Selector = "IsisType::L1Hello")]
@@ -73,7 +87,7 @@ pub enum IsisPdu {
     Unknown(IsisUnknown),
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisLsp {
     pub pdu_len: u16,
     pub lifetime: u16,
@@ -100,7 +114,7 @@ impl IsisLsp {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisHello {
     pub circuit_type: u8,
     pub source_id: IsisSysId,
@@ -127,7 +141,7 @@ impl IsisHello {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisCsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
@@ -152,7 +166,7 @@ impl IsisCsnp {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisPsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
@@ -173,7 +187,7 @@ impl IsisPsnp {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 #[nom(Selector = "IsisTlvType")]
 pub enum IsisTlv {
     #[nom(Selector = "IsisTlvType::AreaAddr")]
@@ -242,7 +256,7 @@ impl Default for IsisSysId {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvAreaAddr {
     pub area_addr: [u8; 4],
 }
@@ -261,7 +275,13 @@ impl TlvEmitter for IsisTlvAreaAddr {
     }
 }
 
-#[derive(Debug, NomBE)]
+impl From<IsisTlvAreaAddr> for IsisTlv {
+    fn from(tlv: IsisTlvAreaAddr) -> Self {
+        IsisTlv::AreaAddr(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvIsNeighbor {
     pub addr: [u8; 6],
 }
@@ -280,7 +300,7 @@ impl TlvEmitter for IsisTlvIsNeighbor {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvPadding {
     pub padding: Vec<u8>,
 }
@@ -299,7 +319,7 @@ impl TlvEmitter for IsisTlvPadding {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisLspEntry {
     pub lifetime: u16,
     pub lsp_id: [u8; 8],
@@ -316,7 +336,7 @@ impl IsisLspEntry {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvLspEntries {
     pub entries: Vec<IsisLspEntry>,
 }
@@ -337,7 +357,7 @@ impl TlvEmitter for IsisTlvLspEntries {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvProtSupported {
     pub nlpid: u8,
 }
@@ -356,7 +376,13 @@ impl TlvEmitter for IsisTlvProtSupported {
     }
 }
 
-#[derive(Debug, NomBE)]
+impl From<IsisTlvProtSupported> for IsisTlv {
+    fn from(tlv: IsisTlvProtSupported) -> Self {
+        IsisTlv::ProtSupported(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvIpv4IfAddr {
     pub addr: Ipv4Addr,
 }
@@ -375,7 +401,13 @@ impl TlvEmitter for IsisTlvIpv4IfAddr {
     }
 }
 
-#[derive(Debug, NomBE)]
+impl From<IsisTlvIpv4IfAddr> for IsisTlv {
+    fn from(tlv: IsisTlvIpv4IfAddr) -> Self {
+        IsisTlv::Ipv4IfAddr(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvTeRouterId {
     pub router_id: Ipv4Addr,
 }
@@ -394,7 +426,7 @@ impl TlvEmitter for IsisTlvTeRouterId {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvHostname {
     pub hostname: String,
 }
@@ -413,7 +445,7 @@ impl TlvEmitter for IsisTlvHostname {
     }
 }
 
-#[derive(Debug, Default, NomBE)]
+#[derive(Debug, Default, NomBE, Clone)]
 pub struct IsisTlvUnknown {
     pub typ: IsisTlvType,
     pub len: u8,
@@ -466,7 +498,7 @@ impl ParseBe<IsisTlvHostname> for IsisTlvHostname {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisUnknown {
     #[nom(Ignore)]
     pub typ: IsisType,

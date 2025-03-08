@@ -10,7 +10,7 @@ use crate::IsisTlvType;
 
 use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 #[nom(Selector = "IsisCapCode")]
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisCapCode::SegmentRoutingCap")]
@@ -63,7 +63,7 @@ impl IsisSubTlv {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SidLabel {
     Label(u32),
     Index(u32),
@@ -95,7 +95,7 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubSegmentRoutingCap {
     pub flags: u8,
     #[nom(Parse = "be_u24")]
@@ -127,7 +127,7 @@ impl TlvEmitter for IsisSubSegmentRoutingCap {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubSegmentRoutingAlgo {
     pub algo: Vec<u8>,
 }
@@ -146,7 +146,7 @@ impl TlvEmitter for IsisSubSegmentRoutingAlgo {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubSegmentRoutingLB {
     pub flags: u8,
     #[nom(Parse = "be_u24")]
@@ -178,7 +178,7 @@ impl TlvEmitter for IsisSubSegmentRoutingLB {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubNodeMaxSidDepth {
     pub flags: u8,
     pub depth: u8,
@@ -199,7 +199,7 @@ impl TlvEmitter for IsisSubNodeMaxSidDepth {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvRouterCap {
     pub router_id: Ipv4Addr,
     pub flags: u8,

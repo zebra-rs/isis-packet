@@ -11,7 +11,7 @@ use crate::{IsisSysId, IsisTlvType};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct IsisTlvExtIsReach {
     pub entries: Vec<IsisTlvExtIsReachEntry>,
 }
@@ -37,7 +37,7 @@ impl TlvEmitter for IsisTlvExtIsReach {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct IsisTlvExtIsReachEntry {
     pub neighbor_id: [u8; 7],
     pub metric: u32,
@@ -80,7 +80,7 @@ impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 #[nom(Selector = "IsisNeighCode")]
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisNeighCode::Ipv4IfAddr")]
@@ -129,7 +129,7 @@ impl IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubIpv4IfAddr {
     pub addr: Ipv4Addr,
 }
@@ -148,7 +148,7 @@ impl TlvEmitter for IsisSubIpv4IfAddr {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubIpv4NeighAddr {
     pub addr: Ipv4Addr,
 }
@@ -167,7 +167,7 @@ impl TlvEmitter for IsisSubIpv4NeighAddr {
     }
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubLanAdjSid {
     pub flags: u8,
     pub weight: u8,

@@ -3,7 +3,7 @@ use nom_derive::*;
 
 use crate::util::TlvEmitter;
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubTlvUnknown {
     #[nom(Ignore)]
     pub code: u8,

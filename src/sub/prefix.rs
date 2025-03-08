@@ -13,7 +13,7 @@ use crate::IsisTlvType;
 
 use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 #[nom(Selector = "IsisPrefixCode")]
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisPrefixCode::PrefixSid")]
@@ -22,7 +22,7 @@ pub enum IsisSubTlv {
     Unknown(IsisSubTlvUnknown),
 }
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisSubPrefixSid {
     pub flags: u8,
     pub algo: u8,
@@ -85,7 +85,7 @@ pub struct Ipv4ControlInfo {
     pub distribution: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvExtIpReach {
     pub entries: Vec<IsisTlvExtIpReachEntry>,
 }
@@ -111,7 +111,7 @@ impl TlvEmitter for IsisTlvExtIpReach {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvMtIpReach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvExtIpReachEntry>,
@@ -147,7 +147,7 @@ impl TlvEmitter for IsisTlvMtIpReach {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvExtIpReachEntry {
     pub metric: u32,
     pub flags: Ipv4ControlInfo,
@@ -187,7 +187,7 @@ impl IsisTlvExtIpReachEntry {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvIpv6Reach {
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
 }
@@ -221,7 +221,7 @@ pub struct MultiTopologyId {
     pub id: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvMtIpv6Reach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
@@ -266,7 +266,7 @@ pub struct Ipv6ControlInfo {
     pub dist_up: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvIpv6ReachEntry {
     pub metric: u32,
     pub flags: Ipv6ControlInfo,
