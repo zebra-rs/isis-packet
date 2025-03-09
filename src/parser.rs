@@ -32,7 +32,7 @@ pub struct IsisPacket {
 }
 
 impl IsisPacket {
-    pub fn from(pdu_type: IsisType, pdu: &IsisPdu) -> IsisPacket {
+    pub fn from(pdu_type: IsisType, pdu: IsisPdu) -> IsisPacket {
         IsisPacket {
             discriminator: 0x83,
             length_indicator: 27,
@@ -42,7 +42,7 @@ impl IsisPacket {
             version: 1,
             resvd: 0,
             max_area_addr: 0,
-            pdu: pdu.clone(),
+            pdu,
         }
     }
 
