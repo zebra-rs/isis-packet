@@ -1,9 +1,9 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisPsnp, IsisSysId, IsisTlv,
-    IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor, IsisTlvLspEntries,
-    IsisTlvPadding, IsisTlvProtSupported, IsisTlvTeRouterId,
+    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisProto, IsisPsnp,
+    IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor,
+    IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId,
 };
 
 impl Display for IsisPacket {
@@ -210,9 +210,21 @@ impl Display for IsisTlvLspEntries {
     }
 }
 
-impl Display for IsisTlvProtSupported {
+pub fn nlpid_str(nlpid: u8) -> &'static str {
+    match nlpid.into() {
+        IsisProto::Ipv4 => "IPv4",
+        IsisProto::Ipv6 => "IPv6",
+        _ => "Unknown",
+    }
+}
+
+impl Display for IsisTlvProtoSupported {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Protocol Supported: {:x}", self.nlpid)
+        write!(f, "  Protocol Supported: ").unwrap();
+        for nlpid in &self.nlpids {
+            write!(f, "{}", nlpid_str(*nlpid)).unwrap();
+        }
+        Ok(())
     }
 }
 

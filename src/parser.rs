@@ -201,7 +201,7 @@ pub enum IsisTlv {
     #[nom(Selector = "IsisTlvType::ExtIsReach")]
     ExtIsReach(IsisTlvExtIsReach),
     #[nom(Selector = "IsisTlvType::ProtSupported")]
-    ProtSupported(IsisTlvProtSupported),
+    ProtSupported(IsisTlvProtoSupported),
     #[nom(Selector = "IsisTlvType::Ipv4IfAddr")]
     Ipv4IfAddr(IsisTlvIpv4IfAddr),
     #[nom(Selector = "IsisTlvType::TeRouterId")]
@@ -300,6 +300,12 @@ impl TlvEmitter for IsisTlvIsNeighbor {
     }
 }
 
+impl From<IsisTlvIsNeighbor> for IsisTlv {
+    fn from(tlv: IsisTlvIsNeighbor) -> Self {
+        IsisTlv::IsNeighbor(tlv)
+    }
+}
+
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvPadding {
     pub padding: Vec<u8>,
@@ -357,27 +363,44 @@ impl TlvEmitter for IsisTlvLspEntries {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
-pub struct IsisTlvProtSupported {
-    pub nlpid: u8,
+#[repr(u8)]
+pub enum IsisProto {
+    Ipv4 = 0xcc,
+    Ipv6 = 0x8e,
+    Unknown,
 }
 
-impl TlvEmitter for IsisTlvProtSupported {
+impl From<u8> for IsisProto {
+    fn from(proto: u8) -> Self {
+        match proto {
+            0xcc => IsisProto::Ipv4,
+            0x8e => IsisProto::Ipv6,
+            _ => IsisProto::Unknown,
+        }
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisTlvProtoSupported {
+    pub nlpids: Vec<u8>,
+}
+
+impl TlvEmitter for IsisTlvProtoSupported {
     fn typ(&self) -> u8 {
         IsisTlvType::ProtSupported.into()
     }
 
     fn len(&self) -> u8 {
-        1
+        self.nlpids.len() as u8
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.nlpid);
+        buf.put(self.nlpids.as_bytes());
     }
 }
 
-impl From<IsisTlvProtSupported> for IsisTlv {
-    fn from(tlv: IsisTlvProtSupported) -> Self {
+impl From<IsisTlvProtoSupported> for IsisTlv {
+    fn from(tlv: IsisTlvProtoSupported) -> Self {
         IsisTlv::ProtSupported(tlv)
     }
 }
