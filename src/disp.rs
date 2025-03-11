@@ -54,10 +54,11 @@ impl Display for IsisLsp {
             r#"== IS-IS L1 LSP ==
  PDU length: {}
  Lifetime: {}
+ LSP ID: {:?}
  Sequence number: 0x{:x}
  Checksum: 0x{:x}
  Type block: {:x}"#,
-            self.pdu_len, self.lifetime, self.seq_number, self.checksum, self.types,
+            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum, self.types,
         )?;
         for tlv in self.tlvs.iter() {
             write!(f, "\n{}", tlv)?;
