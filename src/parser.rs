@@ -201,7 +201,7 @@ pub enum IsisTlv {
     #[nom(Selector = "IsisTlvType::ExtIsReach")]
     ExtIsReach(IsisTlvExtIsReach),
     #[nom(Selector = "IsisTlvType::ProtSupported")]
-    ProtSupported(IsisTlvProtoSupported),
+    ProtoSupported(IsisTlvProtoSupported),
     #[nom(Selector = "IsisTlvType::Ipv4IfAddr")]
     Ipv4IfAddr(IsisTlvIpv4IfAddr),
     #[nom(Selector = "IsisTlvType::TeRouterId")]
@@ -231,7 +231,7 @@ impl IsisTlv {
             Padding(v) => v.tlv_emit(buf),
             LspEntries(v) => v.tlv_emit(buf),
             ExtIsReach(v) => v.tlv_emit(buf),
-            ProtSupported(v) => v.tlv_emit(buf),
+            ProtoSupported(v) => v.tlv_emit(buf),
             Ipv4IfAddr(v) => v.tlv_emit(buf),
             TeRouterId(v) => v.tlv_emit(buf),
             ExtIpReach(v) => v.tlv_emit(buf),
@@ -401,7 +401,7 @@ impl TlvEmitter for IsisTlvProtoSupported {
 
 impl From<IsisTlvProtoSupported> for IsisTlv {
     fn from(tlv: IsisTlvProtoSupported) -> Self {
-        IsisTlv::ProtSupported(tlv)
+        IsisTlv::ProtoSupported(tlv)
     }
 }
 

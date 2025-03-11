@@ -136,7 +136,7 @@ impl Display for IsisTlv {
             Padding(v) => write!(f, "{}", v),
             LspEntries(v) => write!(f, "{}", v),
             ExtIsReach(v) => write!(f, "{}", v),
-            ProtSupported(v) => write!(f, "{}", v),
+            ProtoSupported(v) => write!(f, "{}", v),
             Ipv4IfAddr(v) => write!(f, "{}", v),
             TeRouterId(v) => write!(f, "{}", v),
             ExtIpReach(v) => write!(f, "{}", v),
