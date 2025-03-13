@@ -98,6 +98,24 @@ impl Default for IsisLspId {
     }
 }
 
+impl IsisLspId {
+    pub fn sys_id(&self) -> IsisSysId {
+        IsisSysId {
+            sys_id: [
+                self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5],
+            ],
+        }
+    }
+
+    pub fn pseudo_id(&self) -> u8 {
+        self.id[6]
+    }
+
+    pub fn fragment_id(&self) -> u8 {
+        self.id[7]
+    }
+}
+
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisLsp {
     pub pdu_len: u16,
