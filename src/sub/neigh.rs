@@ -7,7 +7,7 @@ use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::{IsisSysId, IsisTlvType};
+use crate::{IsisNeighborId, IsisSysId, IsisTlvType};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -35,11 +35,6 @@ impl TlvEmitter for IsisTlvExtIsReach {
     fn emit(&self, buf: &mut BytesMut) {
         self.entries.iter().for_each(|entry| entry.emit(buf));
     }
-}
-
-#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
-pub struct IsisNeighborId {
-    id: [u8; 7],
 }
 
 #[derive(Debug, Clone)]
@@ -201,7 +196,7 @@ impl TlvEmitter for IsisSubLanAdjSid {
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags);
         buf.put_u8(self.weight);
-        buf.put(&self.system_id.sys_id[..]);
+        buf.put(&self.system_id.id[..]);
         buf.put(&u32_u8_3(self.sid)[..]);
     }
 }

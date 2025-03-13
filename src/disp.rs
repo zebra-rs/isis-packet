@@ -156,12 +156,7 @@ impl Display for IsisSysId {
         write!(
             f,
             "{:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}",
-            self.sys_id[0],
-            self.sys_id[1],
-            self.sys_id[2],
-            self.sys_id[3],
-            self.sys_id[4],
-            self.sys_id[5],
+            self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5],
         )
     }
 }

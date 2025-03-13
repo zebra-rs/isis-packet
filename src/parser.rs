@@ -88,6 +88,42 @@ pub enum IsisPdu {
 }
 
 #[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+pub struct IsisSysId {
+    pub id: [u8; 6],
+}
+
+impl Default for IsisSysId {
+    fn default() -> Self {
+        Self { id: [0u8; 6] }
+    }
+}
+
+#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+pub struct IsisNeighborId {
+    pub id: [u8; 7],
+}
+
+impl Default for IsisNeighborId {
+    fn default() -> Self {
+        Self { id: [0u8; 7] }
+    }
+}
+
+impl IsisNeighborId {
+    pub fn sys_id(&self) -> IsisSysId {
+        IsisSysId {
+            id: [
+                self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5],
+            ],
+        }
+    }
+
+    pub fn pseudo_id(&self) -> u8 {
+        self.id[6]
+    }
+}
+
+#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisLspId {
     pub id: [u8; 8],
 }
@@ -101,7 +137,7 @@ impl Default for IsisLspId {
 impl IsisLspId {
     pub fn sys_id(&self) -> IsisSysId {
         IsisSysId {
-            sys_id: [
+            id: [
                 self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5],
             ],
         }
@@ -158,7 +194,7 @@ pub struct IsisHello {
 impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.circuit_type);
-        buf.put(&self.source_id.sys_id[..]);
+        buf.put(&self.source_id.id[..]);
         buf.put_u16(self.hold_timer);
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
@@ -175,8 +211,8 @@ pub struct IsisCsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
     pub source_id_curcuit: u8,
-    pub start: [u8; 8],
-    pub end: [u8; 8],
+    pub start: IsisLspId,
+    pub end: IsisLspId,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
 }
@@ -185,10 +221,10 @@ impl IsisCsnp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
-        buf.put(&self.source_id.sys_id[..]);
+        buf.put(&self.source_id.id[..]);
         buf.put_u8(self.source_id_curcuit);
-        buf.put(&self.start[..]);
-        buf.put(&self.end[..]);
+        buf.put(&self.start.id[..]);
+        buf.put(&self.end.id[..]);
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
@@ -208,7 +244,7 @@ impl IsisPsnp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
-        buf.put(&self.source_id.sys_id[..]);
+        buf.put(&self.source_id.id[..]);
         buf.put_u8(self.source_id_curcuit);
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
@@ -271,17 +307,6 @@ impl IsisTlv {
             RouterCap(v) => v.tlv_emit(buf),
             Unknown(v) => v.emit(buf),
         }
-    }
-}
-
-#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
-pub struct IsisSysId {
-    pub sys_id: [u8; 6],
-}
-
-impl Default for IsisSysId {
-    fn default() -> Self {
-        Self { sys_id: [0u8; 6] }
     }
 }
 
