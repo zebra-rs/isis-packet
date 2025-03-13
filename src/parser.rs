@@ -87,11 +87,22 @@ pub enum IsisPdu {
     Unknown(IsisUnknown),
 }
 
+#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+pub struct IsisLspId {
+    pub id: [u8; 8],
+}
+
+impl Default for IsisLspId {
+    fn default() -> Self {
+        Self { id: [0u8; 8] }
+    }
+}
+
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisLsp {
     pub pdu_len: u16,
     pub lifetime: u16,
-    pub lsp_id: [u8; 8],
+    pub lsp_id: IsisLspId,
     pub seq_number: u32,
     pub checksum: u16,
     pub types: u8,
@@ -104,7 +115,7 @@ impl IsisLsp {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
         buf.put_u16(self.lifetime);
-        buf.put(&self.lsp_id[..]);
+        buf.put(&self.lsp_id.id[..]);
         buf.put_u32(self.seq_number);
         buf.put_u16(self.checksum);
         buf.put_u8(self.types);
@@ -328,7 +339,7 @@ impl TlvEmitter for IsisTlvPadding {
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisLspEntry {
     pub lifetime: u16,
-    pub lsp_id: [u8; 8],
+    pub lsp_id: IsisLspId,
     pub seq_number: u32,
     pub checksum: u16,
 }
@@ -336,7 +347,7 @@ pub struct IsisLspEntry {
 impl IsisLspEntry {
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u16(self.lifetime);
-        buf.put(&self.lsp_id[..]);
+        buf.put(&self.lsp_id.id[..]);
         buf.put_u32(self.seq_number);
         buf.put_u16(self.checksum);
     }
