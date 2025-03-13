@@ -51,7 +51,7 @@ impl Display for IsisLsp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS L1 LSP ==
+            r#"== IS-IS LSP ==
  PDU length: {}
  Lifetime: {}
  LSP ID: {:?}
