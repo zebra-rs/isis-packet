@@ -87,26 +87,14 @@ pub enum IsisPdu {
     Unknown(IsisUnknown),
 }
 
-#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisSysId {
     pub id: [u8; 6],
 }
 
-impl Default for IsisSysId {
-    fn default() -> Self {
-        Self { id: [0u8; 6] }
-    }
-}
-
-#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisNeighborId {
     pub id: [u8; 7],
-}
-
-impl Default for IsisNeighborId {
-    fn default() -> Self {
-        Self { id: [0u8; 7] }
-    }
 }
 
 impl IsisNeighborId {
@@ -123,15 +111,9 @@ impl IsisNeighborId {
     }
 }
 
-#[derive(Debug, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisLspId {
     pub id: [u8; 8],
-}
-
-impl Default for IsisLspId {
-    fn default() -> Self {
-        Self { id: [0u8; 8] }
-    }
 }
 
 impl IsisLspId {

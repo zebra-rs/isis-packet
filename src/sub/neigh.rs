@@ -37,7 +37,7 @@ impl TlvEmitter for IsisTlvExtIsReach {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct IsisTlvExtIsReachEntry {
     pub neighbor_id: IsisNeighborId,
     pub metric: u32,
@@ -45,14 +45,6 @@ pub struct IsisTlvExtIsReachEntry {
 }
 
 impl IsisTlvExtIsReachEntry {
-    pub fn new() -> Self {
-        Self {
-            neighbor_id: IsisNeighborId { id: [0u8; 7] },
-            metric: 0,
-            subs: Vec::new(),
-        }
-    }
-
     fn len(&self) -> u8 {
         11 + self.sub_len() // 11 is TLV length without sub TLVs.
     }
@@ -79,7 +71,7 @@ impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
         let (sub, input) = input.split_at(sublen as usize);
         let (_, subs) = many0(IsisSubTlv::parse_subs)(sub)?;
 
-        let mut tlv = Self::new();
+        let mut tlv = Self::default();
         tlv.neighbor_id.id.copy_from_slice(neighbor_id);
         tlv.metric = metric;
         tlv.subs = subs;
