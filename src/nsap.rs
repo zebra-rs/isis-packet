@@ -44,6 +44,21 @@ impl fmt::Display for Nsap {
     }
 }
 
+impl Nsap {
+    pub fn sys_id(&self) -> IsisSysId {
+        IsisSysId {
+            id: [
+                self.sys_id[0],
+                self.sys_id[1],
+                self.sys_id[2],
+                self.sys_id[3],
+                self.sys_id[4],
+                self.sys_id[5],
+            ],
+        }
+    }
+}
+
 impl From<ParseIntError> for NsapParseError {
     fn from(_err: ParseIntError) -> Self {
         NsapParseError(())

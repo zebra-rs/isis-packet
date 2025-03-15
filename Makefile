@@ -12,3 +12,6 @@ csnp:
 
 psnp:
 	@cargo test --quiet parse_psnp -- --nocapture
+
+l2:
+	@cargo test --quiet parse_l2 -- --nocapture

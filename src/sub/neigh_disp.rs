@@ -2,8 +2,8 @@ use std::fmt::{Display, Formatter, Result};
 
 use super::neigh::IsisSubTlv;
 use super::{
-    IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubLanAdjSid, IsisTlvExtIsReach,
-    IsisTlvExtIsReachEntry,
+    IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
+    IsisSubLanAdjSid, IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
 };
 
 impl Display for IsisTlvExtIsReach {
@@ -36,9 +36,11 @@ impl Display for IsisSubTlv {
         match self {
             Ipv4IfAddr(v) => write!(f, "{}", v),
             Ipv4NeighAddr(v) => write!(f, "{}", v),
+            Ipv6IfAddr(v) => write!(f, "{}", v),
+            Ipv6NeighAddr(v) => write!(f, "{}", v),
             LanAdjSid(v) => write!(f, "{}", v),
             _ => {
-                write!(f, "  Unknown")
+                write!(f, "    Unknown")
             }
         }
     }
@@ -53,6 +55,18 @@ impl Display for IsisSubIpv4IfAddr {
 impl Display for IsisSubIpv4NeighAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "    IPv4 neighbor addr: {}", self.addr)
+    }
+}
+
+impl Display for IsisSubIpv6IfAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "    IPv6 interface addr: {}", self.addr)
+    }
+}
+
+impl Display for IsisSubIpv6NeighAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "    IPv6 neighbor addr: {}", self.addr)
     }
 }
 

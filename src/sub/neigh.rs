@@ -1,4 +1,4 @@
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
@@ -87,6 +87,10 @@ pub enum IsisSubTlv {
     Ipv4IfAddr(IsisSubIpv4IfAddr),
     #[nom(Selector = "IsisNeighCode::Ipv4NeighAddr")]
     Ipv4NeighAddr(IsisSubIpv4NeighAddr),
+    #[nom(Selector = "IsisNeighCode::Ipv6IfAddr")]
+    Ipv6IfAddr(IsisSubIpv6IfAddr),
+    #[nom(Selector = "IsisNeighCode::Ipv6NeighAddr")]
+    Ipv6NeighAddr(IsisSubIpv6NeighAddr),
     #[nom(Selector = "IsisNeighCode::LanAdjSid")]
     LanAdjSid(IsisSubLanAdjSid),
     #[nom(Selector = "_")]
@@ -113,6 +117,8 @@ impl IsisSubTlv {
         match self {
             Ipv4IfAddr(v) => v.len(),
             Ipv4NeighAddr(v) => v.len(),
+            Ipv6IfAddr(v) => v.len(),
+            Ipv6NeighAddr(v) => v.len(),
             LanAdjSid(v) => v.len(),
             Unknown(v) => v.len,
         }
@@ -123,6 +129,8 @@ impl IsisSubTlv {
         match self {
             Ipv4IfAddr(v) => v.tlv_emit(buf),
             Ipv4NeighAddr(v) => v.tlv_emit(buf),
+            Ipv6IfAddr(v) => v.tlv_emit(buf),
+            Ipv6NeighAddr(v) => v.tlv_emit(buf),
             LanAdjSid(v) => v.tlv_emit(buf),
             Unknown(v) => v.tlv_emit(buf),
         }
@@ -160,6 +168,44 @@ impl TlvEmitter for IsisSubIpv4NeighAddr {
 
     fn len(&self) -> u8 {
         4
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.addr.octets()[..]);
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisSubIpv6IfAddr {
+    pub addr: Ipv6Addr,
+}
+
+impl TlvEmitter for IsisSubIpv6IfAddr {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::Ipv6IfAddr.into()
+    }
+
+    fn len(&self) -> u8 {
+        16
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.addr.octets()[..]);
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisSubIpv6NeighAddr {
+    pub addr: Ipv6Addr,
+}
+
+impl TlvEmitter for IsisSubIpv6NeighAddr {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::Ipv6NeighAddr.into()
+    }
+
+    fn len(&self) -> u8 {
+        16
     }
 
     fn emit(&self, buf: &mut BytesMut) {

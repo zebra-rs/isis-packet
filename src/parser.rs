@@ -1,8 +1,9 @@
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
-use nom::number::complete::be_u32;
+use nom::bytes::complete::take;
+use nom::number::complete::{be_u128, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
@@ -117,6 +118,21 @@ pub struct IsisLspId {
 }
 
 impl IsisLspId {
+    pub fn new(sys_id: IsisSysId, pseudo_id: u8, fragment_id: u8) -> Self {
+        Self {
+            id: [
+                sys_id.id[0],
+                sys_id.id[1],
+                sys_id.id[2],
+                sys_id.id[3],
+                sys_id.id[4],
+                sys_id.id[5],
+                pseudo_id,
+                fragment_id,
+            ],
+        }
+    }
+
     pub fn sys_id(&self) -> IsisSysId {
         IsisSysId {
             id: [
@@ -134,7 +150,7 @@ impl IsisLspId {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, Default, NomBE, Clone)]
 pub struct IsisLsp {
     pub pdu_len: u16,
     pub lifetime: u16,
@@ -292,9 +308,9 @@ impl IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, Clone)]
 pub struct IsisTlvAreaAddr {
-    pub area_addr: [u8; 4],
+    pub area_addr: Vec<u8>,
 }
 
 impl TlvEmitter for IsisTlvAreaAddr {
@@ -303,11 +319,23 @@ impl TlvEmitter for IsisTlvAreaAddr {
     }
 
     fn len(&self) -> u8 {
-        self.area_addr.len() as u8
+        (self.area_addr.len() + 1) as u8
     }
 
     fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.area_addr.len() as u8);
         buf.put(&self.area_addr[..]);
+    }
+}
+
+impl ParseBe<IsisTlvAreaAddr> for IsisTlvAreaAddr {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, len) = be_u8(input)?;
+        let (input, addr) = take(len)(input)?;
+        let area_addr = Self {
+            area_addr: addr.to_vec(),
+        };
+        Ok((input, area_addr))
     }
 }
 
@@ -545,6 +573,16 @@ impl ParseBe<Ipv4Addr> for Ipv4Addr {
         }
         let (input, addr) = be_u32(input)?;
         Ok((input, Self::from(addr)))
+    }
+}
+
+impl ParseBe<Ipv6Addr> for Ipv6Addr {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        if input.len() < 16 {
+            return Err(Err::Incomplete(Needed::new(4)));
+        }
+        let (input, bits) = be_u128(input)?;
+        Ok((input, Self::from_bits(bits)))
     }
 }
 
