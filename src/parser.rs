@@ -273,6 +273,8 @@ pub enum IsisTlv {
     ExtIpReach(IsisTlvExtIpReach),
     #[nom(Selector = "IsisTlvType::DynamicHostname")]
     Hostname(IsisTlvHostname),
+    #[nom(Selector = "IsisTlvType::Ipv6TeRouterId")]
+    Ipv6TeRouterId(IsisTlvIpv6TeRouterId),
     #[nom(Selector = "IsisTlvType::MtIpReach")]
     MtIpReach(IsisTlvMtIpReach),
     #[nom(Selector = "IsisTlvType::Ipv6Reach")]
@@ -299,6 +301,7 @@ impl IsisTlv {
             TeRouterId(v) => v.tlv_emit(buf),
             ExtIpReach(v) => v.tlv_emit(buf),
             Hostname(v) => v.tlv_emit(buf),
+            Ipv6TeRouterId(v) => v.tlv_emit(buf),
             MtIpReach(v) => v.tlv_emit(buf),
             Ipv6Reach(v) => v.tlv_emit(buf),
             MtIpv6Reach(v) => v.tlv_emit(buf),
@@ -444,6 +447,16 @@ impl From<u8> for IsisProto {
     }
 }
 
+impl From<IsisProto> for u8 {
+    fn from(proto: IsisProto) -> Self {
+        match proto {
+            IsisProto::Ipv4 => 0xcc,
+            IsisProto::Ipv6 => 0x8e,
+            IsisProto::Unknown => 0xff,
+        }
+    }
+}
+
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvProtoSupported {
     pub nlpids: Vec<u8>,
@@ -529,6 +542,37 @@ impl TlvEmitter for IsisTlvHostname {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(self.hostname.as_bytes());
+    }
+}
+
+impl From<IsisTlvHostname> for IsisTlv {
+    fn from(tlv: IsisTlvHostname) -> Self {
+        IsisTlv::Hostname(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisTlvIpv6TeRouterId {
+    pub router_id: Ipv6Addr,
+}
+
+impl TlvEmitter for IsisTlvIpv6TeRouterId {
+    fn typ(&self) -> u8 {
+        IsisTlvType::Ipv6TeRouterId.into()
+    }
+
+    fn len(&self) -> u8 {
+        16
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.router_id.octets()[..]);
+    }
+}
+
+impl From<IsisTlvIpv6TeRouterId> for IsisTlv {
+    fn from(tlv: IsisTlvIpv6TeRouterId) -> Self {
+        IsisTlv::Ipv6TeRouterId(tlv)
     }
 }
 
