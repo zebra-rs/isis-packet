@@ -141,6 +141,14 @@ impl IsisLspId {
         }
     }
 
+    pub fn neighbor_id(&self) -> IsisNeighborId {
+        IsisNeighborId {
+            id: [
+                self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5], self.id[6],
+            ],
+        }
+    }
+
     pub fn pseudo_id(&self) -> u8 {
         self.id[6]
     }
@@ -160,6 +168,7 @@ pub struct IsisLsp {
     pub types: u8,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
+    // welknown
 }
 
 impl IsisLsp {
@@ -523,6 +532,12 @@ impl TlvEmitter for IsisTlvTeRouterId {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(&self.router_id.octets()[..])
+    }
+}
+
+impl From<IsisTlvTeRouterId> for IsisTlv {
+    fn from(tlv: IsisTlvTeRouterId) -> Self {
+        IsisTlv::TeRouterId(tlv)
     }
 }
 

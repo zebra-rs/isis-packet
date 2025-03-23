@@ -7,13 +7,19 @@ use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::{IsisNeighborId, IsisSysId, IsisTlvType};
+use crate::{IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
 #[derive(Debug, Default, Clone)]
 pub struct IsisTlvExtIsReach {
     pub entries: Vec<IsisTlvExtIsReachEntry>,
+}
+
+impl From<IsisTlvExtIsReach> for IsisTlv {
+    fn from(tlv: IsisTlvExtIsReach) -> Self {
+        IsisTlv::ExtIsReach(tlv)
+    }
 }
 
 impl ParseBe<IsisTlvExtIsReach> for IsisTlvExtIsReach {

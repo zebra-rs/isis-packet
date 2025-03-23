@@ -2,9 +2,9 @@ use std::fmt;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-use crate::IsisSysId;
+use crate::{IsisNeighborId, IsisSysId};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Nsap {
     pub afi: u8,
     pub area_id: Vec<u8>,
@@ -54,6 +54,20 @@ impl Nsap {
                 self.sys_id[3],
                 self.sys_id[4],
                 self.sys_id[5],
+            ],
+        }
+    }
+
+    pub fn neighbor_id(&self) -> IsisNeighborId {
+        IsisNeighborId {
+            id: [
+                self.sys_id[0],
+                self.sys_id[1],
+                self.sys_id[2],
+                self.sys_id[3],
+                self.sys_id[4],
+                self.sys_id[5],
+                self.nsel,
             ],
         }
     }
@@ -157,6 +171,7 @@ mod tests {
     #[test]
     fn test_valid_nsap() {
         is_valid_nsap("49.0000.0000.0000.0001.00");
+        is_valid_nsap("49.0011.2222.0000.0000.000a.00");
         is_valid_nsap("49.5678.0123.4567.0002.01");
         is_valid_nsap("49.5678.01.0123.4567.0002.01");
         is_valid_nsap("49.0102.0304.0506.0708.090a.0b0c.0d.0000.0000.0001.00");

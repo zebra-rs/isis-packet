@@ -39,7 +39,7 @@ impl Display for IsisSubSegmentRoutingCap {
         write!(
             f,
             r#"   Segment Routing Capability:
-    Flags: {}
+    Flags: {:?}
     Range: {}
     SID: {:?}"#,
             self.flags, self.range, self.sid

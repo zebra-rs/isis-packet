@@ -1,12 +1,13 @@
 use std::net::Ipv4Addr;
 
+use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use nom::number::complete::{be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::IsisTlvType;
+use crate::{IsisTlv, IsisTlvType};
 
 use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -95,9 +96,24 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
     }
 }
 
+#[bitfield(u8, debug = true)]
+pub struct SegmentRoutingCapFlags {
+    #[bits(6)]
+    pub resvd: u8,
+    pub v_flag: bool,
+    pub i_flag: bool,
+}
+
+impl ParseBe<SegmentRoutingCapFlags> for SegmentRoutingCapFlags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisSubSegmentRoutingCap {
-    pub flags: u8,
+    pub flags: SegmentRoutingCapFlags,
     #[nom(Parse = "be_u24")]
     pub range: u32,
     #[nom(Parse = "parse_sid_label")]
@@ -116,14 +132,20 @@ impl TlvEmitter for IsisSubSegmentRoutingCap {
 
     fn emit(&self, buf: &mut BytesMut) {
         use SidLabel::*;
-        buf.put_u8(self.flags);
+        buf.put_u8(self.flags.into());
         buf.put(&u32_u8_3(self.range)[..]);
-        buf.put_u8(1); // RFC8667 2.3. SID/Label Type: 1.
+        buf.put_u8(1); // RFC8667 2.3. SID/Label Type is always 1.
         buf.put_u8(self.sid.len());
         match self.sid {
             Label(v) => buf.put(&u32_u8_3(v)[..]),
             Index(v) => buf.put_u32(v),
         }
+    }
+}
+
+impl From<IsisSubSegmentRoutingCap> for IsisSubTlv {
+    fn from(sub: IsisSubSegmentRoutingCap) -> Self {
+        IsisSubTlv::SegmentRoutingCap(sub)
     }
 }
 
@@ -143,6 +165,12 @@ impl TlvEmitter for IsisSubSegmentRoutingAlgo {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(self.algo.as_bytes())
+    }
+}
+
+impl From<IsisSubSegmentRoutingAlgo> for IsisSubTlv {
+    fn from(sub: IsisSubSegmentRoutingAlgo) -> Self {
+        IsisSubTlv::SegmentRoutingAlgo(sub)
     }
 }
 
@@ -175,6 +203,12 @@ impl TlvEmitter for IsisSubSegmentRoutingLB {
             Label(v) => buf.put(&u32_u8_3(v)[..]),
             Index(v) => buf.put_u32(v),
         }
+    }
+}
+
+impl From<IsisSubSegmentRoutingLB> for IsisSubTlv {
+    fn from(sub: IsisSubSegmentRoutingLB) -> Self {
+        IsisSubTlv::SegmentRoutingLB(sub)
     }
 }
 
@@ -239,5 +273,11 @@ impl TlvEmitter for IsisTlvRouterCap {
         buf.put(&self.router_id.octets()[..]);
         buf.put_u8(self.flags);
         self.subs.iter().for_each(|sub| sub.emit(buf));
+    }
+}
+
+impl From<IsisTlvRouterCap> for IsisTlv {
+    fn from(tlv: IsisTlvRouterCap) -> Self {
+        IsisTlv::RouterCap(tlv)
     }
 }
