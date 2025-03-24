@@ -122,7 +122,7 @@ impl Display for IsisPsnp {
  PDU length: {}
  Source ID: {}
  Source ID Curcuit: {}"#,
-            self.pdu_len, self.source_id, self.source_id_curcuit
+            self.pdu_len, self.source_id, 0,
         )?;
         for tlv in self.tlvs.iter() {
             write!(f, "{}", tlv)?;

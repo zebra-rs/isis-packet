@@ -32,11 +32,27 @@ pub struct IsisPacket {
     pub pdu: IsisPdu,
 }
 
+pub fn length_indicator(pdu_type: IsisType) -> u8 {
+    use IsisType::*;
+    match pdu_type {
+        L1Hello => 27,
+        L2Hello => 27,
+        P2PHello => 27,
+        L1Lsp => 27,
+        L2Lsp => 27,
+        L1Csnp => 33,
+        L2Csnp => 33,
+        L1Psnp => 17,
+        L2Psnp => 17,
+        _ => 27,
+    }
+}
+
 impl IsisPacket {
     pub fn from(pdu_type: IsisType, pdu: IsisPdu) -> IsisPacket {
         IsisPacket {
             discriminator: 0x83,
-            length_indicator: 27,
+            length_indicator: length_indicator(pdu_type),
             id_extension: 1,
             id_length: 0,
             pdu_type,
@@ -429,7 +445,7 @@ impl IsisLspEntry {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Default)]
 pub struct IsisTlvLspEntries {
     pub entries: Vec<IsisLspEntry>,
 }
@@ -447,6 +463,12 @@ impl TlvEmitter for IsisTlvLspEntries {
         for entry in self.entries.iter() {
             entry.emit(buf);
         }
+    }
+}
+
+impl From<IsisTlvLspEntries> for IsisTlv {
+    fn from(tlv: IsisTlvLspEntries) -> Self {
+        IsisTlv::LspEntries(tlv)
     }
 }
 

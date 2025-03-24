@@ -7,6 +7,7 @@ fn parse_emit(buf: &[u8]) {
     assert!(packet.is_ok());
 
     let (_, packet) = packet.unwrap();
+    println!("{}", packet);
     let mut buf = BytesMut::new();
     packet.emit(&mut buf);
 
