@@ -62,8 +62,10 @@ impl IsisPacket {
             L2Hello(v) => v.emit(buf),
             L1Lsp(v) => v.emit(buf),
             L2Lsp(v) => v.emit(buf),
-            Csnp(v) => v.emit(buf),
-            Psnp(v) => v.emit(buf),
+            L1Csnp(v) => v.emit(buf),
+            L2Csnp(v) => v.emit(buf),
+            L1Psnp(v) => v.emit(buf),
+            L2Psnp(v) => v.emit(buf),
             Unknown(_) => {}
         }
     }
@@ -80,10 +82,14 @@ pub enum IsisPdu {
     L1Lsp(IsisLsp),
     #[nom(Selector = "IsisType::L2Lsp")]
     L2Lsp(IsisLsp),
-    #[nom(Selector = "IsisType::Csnp")]
-    Csnp(IsisCsnp),
-    #[nom(Selector = "IsisType::Psnp")]
-    Psnp(IsisPsnp),
+    #[nom(Selector = "IsisType::L1Csnp")]
+    L1Csnp(IsisCsnp),
+    #[nom(Selector = "IsisType::L2Csnp")]
+    L2Csnp(IsisCsnp),
+    #[nom(Selector = "IsisType::L1Psnp")]
+    L1Psnp(IsisPsnp),
+    #[nom(Selector = "IsisType::L2Psnp")]
+    L2Psnp(IsisPsnp),
     #[nom(Selector = "_")]
     Unknown(IsisUnknown),
 }

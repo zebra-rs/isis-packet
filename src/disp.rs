@@ -41,8 +41,10 @@ impl Display for IsisPdu {
             L2Hello(v) => write!(f, "{}", v),
             L1Lsp(v) => write!(f, "{}", v),
             L2Lsp(v) => write!(f, "{}", v),
-            Csnp(v) => write!(f, "{}", v),
-            Psnp(v) => write!(f, "{}", v),
+            L1Csnp(v) => write!(f, "{}", v),
+            L2Csnp(v) => write!(f, "{}", v),
+            L1Psnp(v) => write!(f, "{}", v),
+            L2Psnp(v) => write!(f, "{}", v),
             Unknown(_) => write!(f, "Unknown"),
         }
     }

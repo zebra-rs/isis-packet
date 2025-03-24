@@ -13,8 +13,10 @@ pub enum IsisType {
     P2PHello = 0x11,
     L1Lsp = 0x12,
     L2Lsp = 0x14,
-    Csnp = 0x18,
-    Psnp = 0x1a,
+    L1Csnp = 0x18,
+    L2Csnp = 0x19,
+    L1Psnp = 0x1a,
+    L2Psnp = 0x1b,
     Unknown(u8),
 }
 
@@ -27,8 +29,10 @@ impl Display for IsisType {
             P2PHello => "P2P LAN Hello",
             L1Lsp => "L1 LSP",
             L2Lsp => "L2 LSP",
-            Csnp => "CSNP",
-            Psnp => "PSNP",
+            L1Csnp => "L1 CSNP",
+            L2Csnp => "L2 CSNP",
+            L1Psnp => "L1 PSNP",
+            L2Psnp => "L2 PSNP",
             Unknown(_v) => "Unknown",
         };
         write!(f, "{str}")
@@ -44,8 +48,10 @@ impl From<IsisType> for u8 {
             P2PHello => 0x11,
             L1Lsp => 0x12,
             L2Lsp => 0x14,
-            Csnp => 0x18,
-            Psnp => 0x1a,
+            L1Csnp => 0x18,
+            L2Csnp => 0x19,
+            L1Psnp => 0x1a,
+            L2Psnp => 0x1b,
             Unknown(v) => v,
         }
     }
@@ -60,8 +66,10 @@ impl From<u8> for IsisType {
             0x11 => P2PHello,
             0x12 => L1Lsp,
             0x14 => L2Lsp,
-            0x18 => Csnp,
-            0x1a => Psnp,
+            0x18 => L1Csnp,
+            0x19 => L2Csnp,
+            0x1a => L1Psnp,
+            0x1b => L2Psnp,
             v => Unknown(v),
         }
     }
