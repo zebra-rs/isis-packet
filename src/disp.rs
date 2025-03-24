@@ -1,8 +1,9 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisPacket, IsisPdu, IsisProto, IsisPsnp,
-    IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr, IsisTlvIsNeighbor,
+    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket, IsisPdu,
+    IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr,
+    IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId, IsisTlvIsNeighbor,
     IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId,
 };
 
@@ -54,7 +55,7 @@ impl Display for IsisLsp {
             r#"== IS-IS LSP ==
  PDU length: {}
  Lifetime: {}
- LSP ID: {:?}
+ LSP ID: {}
  Sequence number: 0x{:x}
  Checksum: 0x{:x}
  Type block: {:x}"#,
@@ -77,7 +78,7 @@ impl Display for IsisHello {
  Holding timer: {}
  PDU length: {}
  Priority: {}
- LAN ID {:?}"#,
+ LAN ID {}"#,
             self.circuit_type,
             self.source_id,
             self.hold_timer,
@@ -142,7 +143,12 @@ impl Display for IsisTlv {
             TeRouterId(v) => write!(f, "{}", v),
             ExtIpReach(v) => write!(f, "{}", v),
             Hostname(v) => write!(f, "{}", v),
+            Ipv6TeRouterId(v) => write!(f, "{}", v),
+            Ipv6IfAddr(v) => write!(f, "{}", v),
+            Ipv6GlobalIfAddr(v) => write!(f, "{}", v),
+            // MtIpReach(v) => write!(f, "{}", v),
             Ipv6Reach(v) => write!(f, "{}", v),
+            // MtIpv6Reach(v) => write!(f, "{}", v),
             RouterCap(v) => write!(f, "{}", v),
             _ => {
                 write!(f, "  Unknown")
@@ -157,6 +163,33 @@ impl Display for IsisSysId {
             f,
             "{:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}",
             self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5],
+        )
+    }
+}
+
+impl Display for IsisNeighborId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "{:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}.{:02x}",
+            self.id[0], self.id[1], self.id[2], self.id[3], self.id[4], self.id[5], self.id[6],
+        )
+    }
+}
+
+impl Display for IsisLspId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "{:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}.{:02x}-{:02x}",
+            self.id[0],
+            self.id[1],
+            self.id[2],
+            self.id[3],
+            self.id[4],
+            self.id[5],
+            self.id[6],
+            self.id[7],
         )
     }
 }
@@ -183,7 +216,11 @@ impl Display for IsisTlvAreaAddr {
 
 impl Display for IsisTlvIsNeighbor {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  IS Neighbor: {:?}", self.addr)
+        write!(
+            f,
+            "  IS Neighbor: {:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}",
+            self.addr[0], self.addr[1], self.addr[2], self.addr[3], self.addr[4], self.addr[5],
+        )
     }
 }
 
@@ -249,5 +286,23 @@ impl Display for IsisTlvHostname {
 impl Display for IsisTlvTeRouterId {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "  TE Router ID: {}", self.router_id)
+    }
+}
+
+impl Display for IsisTlvIpv6TeRouterId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "  IPv6 TE Router ID: {}", self.router_id)
+    }
+}
+
+impl Display for IsisTlvIpv6IfAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "  IPv6 interface addr: {}", self.addr)
+    }
+}
+
+impl Display for IsisTlvIpv6GlobalIfAddr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "  IPv6 global interface addr: {}", self.addr)
     }
 }

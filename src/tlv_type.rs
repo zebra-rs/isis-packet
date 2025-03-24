@@ -17,6 +17,8 @@ pub enum IsisTlvType {
     ExtIpReach = 135,
     DynamicHostname = 137,
     Ipv6TeRouterId = 140,
+    Ipv6IfAddr = 232,
+    Ipv6GlobalIfAddr = 233,
     MtIpReach = 235,
     Ipv6Reach = 236,
     MtIpv6Reach = 237,
@@ -48,6 +50,8 @@ impl IsisTlvType {
                 | ExtIpReach
                 | DynamicHostname
                 | Ipv6TeRouterId
+                | Ipv6IfAddr
+                | Ipv6GlobalIfAddr
                 | MtIpReach
                 | Ipv6Reach
                 | MtIpv6Reach
@@ -71,6 +75,8 @@ impl From<IsisTlvType> for u8 {
             ExtIpReach => 135,
             DynamicHostname => 137,
             Ipv6TeRouterId => 140,
+            Ipv6IfAddr => 232,
+            Ipv6GlobalIfAddr => 233,
             MtIpReach => 235,
             Ipv6Reach => 236,
             MtIpv6Reach => 237,
@@ -95,6 +101,8 @@ impl From<u8> for IsisTlvType {
             135 => ExtIpReach,
             137 => DynamicHostname,
             140 => Ipv6TeRouterId,
+            232 => Ipv6IfAddr,
+            233 => Ipv6GlobalIfAddr,
             235 => MtIpReach,
             236 => Ipv6Reach,
             237 => MtIpv6Reach,

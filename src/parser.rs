@@ -168,7 +168,6 @@ pub struct IsisLsp {
     pub types: u8,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
-    // welknown
 }
 
 impl IsisLsp {
@@ -193,7 +192,7 @@ pub struct IsisHello {
     pub hold_timer: u16,
     pub pdu_len: u16,
     pub priority: u8,
-    pub lan_id: [u8; 7],
+    pub lan_id: IsisNeighborId,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
 }
@@ -206,7 +205,7 @@ impl IsisHello {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
         buf.put_u8(self.priority);
-        buf.put(&self.lan_id[..]);
+        buf.put(&self.lan_id.id[..]);
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
@@ -284,6 +283,10 @@ pub enum IsisTlv {
     Hostname(IsisTlvHostname),
     #[nom(Selector = "IsisTlvType::Ipv6TeRouterId")]
     Ipv6TeRouterId(IsisTlvIpv6TeRouterId),
+    #[nom(Selector = "IsisTlvType::Ipv6IfAddr")]
+    Ipv6IfAddr(IsisTlvIpv6IfAddr),
+    #[nom(Selector = "IsisTlvType::Ipv6GlobalIfAddr")]
+    Ipv6GlobalIfAddr(IsisTlvIpv6GlobalIfAddr),
     #[nom(Selector = "IsisTlvType::MtIpReach")]
     MtIpReach(IsisTlvMtIpReach),
     #[nom(Selector = "IsisTlvType::Ipv6Reach")]
@@ -311,6 +314,8 @@ impl IsisTlv {
             ExtIpReach(v) => v.tlv_emit(buf),
             Hostname(v) => v.tlv_emit(buf),
             Ipv6TeRouterId(v) => v.tlv_emit(buf),
+            Ipv6IfAddr(v) => v.tlv_emit(buf),
+            Ipv6GlobalIfAddr(v) => v.tlv_emit(buf),
             MtIpReach(v) => v.tlv_emit(buf),
             Ipv6Reach(v) => v.tlv_emit(buf),
             MtIpv6Reach(v) => v.tlv_emit(buf),
@@ -359,7 +364,7 @@ impl From<IsisTlvAreaAddr> for IsisTlv {
 
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvIsNeighbor {
-    pub addr: [u8; 6],
+    pub addr: [u8; 6], // MAC Address of the neighbor.
 }
 
 impl TlvEmitter for IsisTlvIsNeighbor {
@@ -588,6 +593,56 @@ impl TlvEmitter for IsisTlvIpv6TeRouterId {
 impl From<IsisTlvIpv6TeRouterId> for IsisTlv {
     fn from(tlv: IsisTlvIpv6TeRouterId) -> Self {
         IsisTlv::Ipv6TeRouterId(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisTlvIpv6IfAddr {
+    pub addr: Ipv6Addr,
+}
+
+impl TlvEmitter for IsisTlvIpv6IfAddr {
+    fn typ(&self) -> u8 {
+        IsisTlvType::Ipv6IfAddr.into()
+    }
+
+    fn len(&self) -> u8 {
+        16
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.addr.octets()[..])
+    }
+}
+
+impl From<IsisTlvIpv6IfAddr> for IsisTlv {
+    fn from(tlv: IsisTlvIpv6IfAddr) -> Self {
+        IsisTlv::Ipv6IfAddr(tlv)
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisTlvIpv6GlobalIfAddr {
+    pub addr: Ipv6Addr,
+}
+
+impl TlvEmitter for IsisTlvIpv6GlobalIfAddr {
+    fn typ(&self) -> u8 {
+        IsisTlvType::Ipv6GlobalIfAddr.into()
+    }
+
+    fn len(&self) -> u8 {
+        16
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.addr.octets()[..])
+    }
+}
+
+impl From<IsisTlvIpv6GlobalIfAddr> for IsisTlv {
+    fn from(tlv: IsisTlvIpv6GlobalIfAddr) -> Self {
+        IsisTlv::Ipv6GlobalIfAddr(tlv)
     }
 }
 

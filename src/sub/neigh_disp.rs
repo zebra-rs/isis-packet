@@ -20,7 +20,7 @@ impl Display for IsisTlvExtIsReachEntry {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   Neighbor ID: {:?}, Metric: {}"#,
+            r#"   Neighbor ID: {}, Metric: {}"#,
             self.neighbor_id, self.metric
         )?;
         for sub in self.subs.iter() {
