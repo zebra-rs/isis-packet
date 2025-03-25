@@ -97,6 +97,8 @@ pub enum IsisSubTlv {
     Ipv6IfAddr(IsisSubIpv6IfAddr),
     #[nom(Selector = "IsisNeighCode::Ipv6NeighAddr")]
     Ipv6NeighAddr(IsisSubIpv6NeighAddr),
+    #[nom(Selector = "IsisNeighCode::AdjSid")]
+    AdjSid(IsisSubAdjSid),
     #[nom(Selector = "IsisNeighCode::LanAdjSid")]
     LanAdjSid(IsisSubLanAdjSid),
     #[nom(Selector = "_")]
@@ -125,6 +127,7 @@ impl IsisSubTlv {
             Ipv4NeighAddr(v) => v.len(),
             Ipv6IfAddr(v) => v.len(),
             Ipv6NeighAddr(v) => v.len(),
+            AdjSid(v) => v.len(),
             LanAdjSid(v) => v.len(),
             Unknown(v) => v.len,
         }
@@ -137,6 +140,7 @@ impl IsisSubTlv {
             Ipv4NeighAddr(v) => v.tlv_emit(buf),
             Ipv6IfAddr(v) => v.tlv_emit(buf),
             Ipv6NeighAddr(v) => v.tlv_emit(buf),
+            AdjSid(v) => v.tlv_emit(buf),
             LanAdjSid(v) => v.tlv_emit(buf),
             Unknown(v) => v.tlv_emit(buf),
         }
@@ -216,6 +220,30 @@ impl TlvEmitter for IsisSubIpv6NeighAddr {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(&self.addr.octets()[..]);
+    }
+}
+
+#[derive(Debug, NomBE, Clone)]
+pub struct IsisSubAdjSid {
+    pub flags: u8,
+    pub weight: u8,
+    #[nom(Parse = "be_u24")]
+    pub sid: u32,
+}
+
+impl TlvEmitter for IsisSubAdjSid {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::AdjSid.into()
+    }
+
+    fn len(&self) -> u8 {
+        5
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.flags);
+        buf.put_u8(self.weight);
+        buf.put(&u32_u8_3(self.sid)[..]);
     }
 }
 
