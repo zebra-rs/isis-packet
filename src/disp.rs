@@ -221,7 +221,12 @@ impl Display for IsisTlvIsNeighbor {
         write!(
             f,
             "  IS Neighbor: {:02x}{:02x}.{:02x}{:02x}.{:02x}{:02x}",
-            self.addr[0], self.addr[1], self.addr[2], self.addr[3], self.addr[4], self.addr[5],
+            self.octets[0],
+            self.octets[1],
+            self.octets[2],
+            self.octets[3],
+            self.octets[4],
+            self.octets[5],
         )
     }
 }

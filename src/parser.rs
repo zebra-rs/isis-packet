@@ -386,7 +386,13 @@ impl From<IsisTlvAreaAddr> for IsisTlv {
 
 #[derive(Debug, NomBE, Clone)]
 pub struct IsisTlvIsNeighbor {
-    pub addr: [u8; 6], // MAC Address of the neighbor.
+    pub octets: [u8; 6], // MAC Address of the neighbor.
+}
+
+impl IsisTlvIsNeighbor {
+    pub fn octets(&self) -> [u8; 6] {
+        self.octets
+    }
 }
 
 impl TlvEmitter for IsisTlvIsNeighbor {
@@ -395,11 +401,11 @@ impl TlvEmitter for IsisTlvIsNeighbor {
     }
 
     fn len(&self) -> u8 {
-        self.addr.len() as u8
+        self.octets.len() as u8
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put(&self.addr[..]);
+        buf.put(&self.octets[..]);
     }
 }
 
