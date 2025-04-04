@@ -7,7 +7,7 @@ use nom::{Err, IResult, Needed};
 use nom_derive::*;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::{IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType};
+use crate::{IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, IPV4_ADDR_LEN, IPV6_ADDR_LEN};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -162,7 +162,7 @@ impl TlvEmitter for IsisSubIpv4IfAddr {
     }
 
     fn len(&self) -> u8 {
-        4
+        IPV4_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -181,7 +181,7 @@ impl TlvEmitter for IsisSubIpv4NeighAddr {
     }
 
     fn len(&self) -> u8 {
-        4
+        IPV4_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -200,7 +200,7 @@ impl TlvEmitter for IsisSubIpv6IfAddr {
     }
 
     fn len(&self) -> u8 {
-        16
+        IPV6_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -219,7 +219,7 @@ impl TlvEmitter for IsisSubIpv6NeighAddr {
     }
 
     fn len(&self) -> u8 {
-        16
+        IPV6_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {

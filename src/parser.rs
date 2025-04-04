@@ -16,6 +16,10 @@ use super::{
 // IS-IS discriminator.
 const ISIS_IRDP_DISC: u8 = 0x83;
 
+// Const for Ipv4Addr and Ipv6Addr lenght.
+pub const IPV4_ADDR_LEN: u8 = 4;
+pub const IPV6_ADDR_LEN: u8 = 16;
+
 #[derive(Debug, NomBE)]
 pub struct IsisPacket {
     #[nom(Verify = "*discriminator == ISIS_IRDP_DISC")]
@@ -540,7 +544,7 @@ impl TlvEmitter for IsisTlvIpv4IfAddr {
     }
 
     fn len(&self) -> u8 {
-        4
+        IPV4_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -565,7 +569,7 @@ impl TlvEmitter for IsisTlvTeRouterId {
     }
 
     fn len(&self) -> u8 {
-        4
+        IPV4_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -615,7 +619,7 @@ impl TlvEmitter for IsisTlvIpv6TeRouterId {
     }
 
     fn len(&self) -> u8 {
-        16
+        IPV6_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -640,7 +644,7 @@ impl TlvEmitter for IsisTlvIpv6IfAddr {
     }
 
     fn len(&self) -> u8 {
-        16
+        IPV6_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
@@ -665,7 +669,7 @@ impl TlvEmitter for IsisTlvIpv6GlobalIfAddr {
     }
 
     fn len(&self) -> u8 {
-        16
+        IPV6_ADDR_LEN
     }
 
     fn emit(&self, buf: &mut BytesMut) {
