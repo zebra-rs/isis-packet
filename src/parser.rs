@@ -7,12 +7,11 @@ use nom::number::complete::{be_u128, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 
-use super::sub::{
+use super::util::{many0, ParseBe, TlvEmitter};
+use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
-    IsisTlvRouterCap,
+    IsisTlvRouterCap, IsisTlvType, IsisType,
 };
-use super::{IsisTlvType, IsisType};
-use crate::util::{many0, ParseBe, TlvEmitter};
 
 // IS-IS discriminator.
 const ISIS_IRDP_DISC: u8 = 0x83;

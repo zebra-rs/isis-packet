@@ -260,5 +260,5 @@ pub fn parse_l2() {
 0e 00 00 00 0a 00 40 20 10 00 00 00 00 00 00
 "
     );
-    parse_emit(&PACKET);
+    parse_emit(PACKET);
 }
