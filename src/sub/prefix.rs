@@ -7,13 +7,15 @@ use nom::bytes::complete::take;
 use nom::number::complete::{be_u16, be_u32, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
+use serde::Serialize;
 
 use crate::util::{many0, ParseBe, TlvEmitter};
 use crate::IsisTlvType;
 
 use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisPrefixCode")]
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisPrefixCode::PrefixSid")]
@@ -22,7 +24,7 @@ pub enum IsisSubTlv {
     Unknown(IsisSubTlvUnknown),
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubPrefixSid {
     pub flags: u8,
     pub algo: u8,
@@ -82,6 +84,7 @@ impl IsisSubTlv {
 }
 
 #[bitfield(u8, debug = true)]
+#[derive(Serialize)]
 pub struct Ipv4ControlInfo {
     #[bits(6)]
     pub prefixlen: usize,
@@ -89,7 +92,7 @@ pub struct Ipv4ControlInfo {
     pub distribution: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvExtIpReach {
     pub entries: Vec<IsisTlvExtIpReachEntry>,
 }
@@ -115,7 +118,7 @@ impl TlvEmitter for IsisTlvExtIpReach {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvMtIpReach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvExtIpReachEntry>,
@@ -151,7 +154,7 @@ impl TlvEmitter for IsisTlvMtIpReach {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvExtIpReachEntry {
     pub metric: u32,
     pub flags: Ipv4ControlInfo,
@@ -191,7 +194,7 @@ impl IsisTlvExtIpReachEntry {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvIpv6Reach {
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
 }
@@ -218,6 +221,7 @@ impl TlvEmitter for IsisTlvIpv6Reach {
 }
 
 #[bitfield(u16, debug = true)]
+#[derive(Serialize)]
 pub struct MultiTopologyId {
     #[bits(4)]
     pub resvd: u8,
@@ -225,7 +229,7 @@ pub struct MultiTopologyId {
     pub id: u16,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvMtIpv6Reach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
@@ -262,6 +266,7 @@ impl TlvEmitter for IsisTlvMtIpv6Reach {
 }
 
 #[bitfield(u8, debug = true)]
+#[derive(Serialize)]
 pub struct Ipv6ControlInfo {
     #[bits(5)]
     pub resvd: usize,
@@ -270,7 +275,7 @@ pub struct Ipv6ControlInfo {
     pub dist_up: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvIpv6ReachEntry {
     pub metric: u32,
     pub flags: Ipv6ControlInfo,

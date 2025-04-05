@@ -6,6 +6,7 @@ use nom::bytes::complete::take;
 use nom::number::complete::{be_u128, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
+use serde::Serialize;
 
 use super::util::{many0, ParseBe, TlvEmitter};
 use super::{
@@ -90,7 +91,8 @@ impl IsisPacket {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisType")]
 pub enum IsisPdu {
     #[nom(Selector = "IsisType::L1Hello")]
@@ -113,12 +115,12 @@ pub enum IsisPdu {
     Unknown(IsisUnknown),
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
 pub struct IsisSysId {
     pub id: [u8; 6],
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
 pub struct IsisNeighborId {
     pub id: [u8; 7],
 }
@@ -137,7 +139,7 @@ impl IsisNeighborId {
     }
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
 pub struct IsisLspId {
     pub id: [u8; 8],
 }
@@ -183,7 +185,7 @@ impl IsisLspId {
     }
 }
 
-#[derive(Debug, Default, NomBE, Clone)]
+#[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisLsp {
     pub pdu_len: u16,
     pub lifetime: u16,
@@ -210,7 +212,7 @@ impl IsisLsp {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisHello {
     pub circuit_type: u8,
     pub source_id: IsisSysId,
@@ -237,7 +239,7 @@ impl IsisHello {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisCsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
@@ -262,7 +264,7 @@ impl IsisCsnp {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisPsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
@@ -283,7 +285,8 @@ impl IsisPsnp {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisTlvType")]
 pub enum IsisTlv {
     #[nom(Selector = "IsisTlvType::AreaAddr")]
@@ -350,7 +353,7 @@ impl IsisTlv {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvAreaAddr {
     pub area_addr: Vec<u8>,
 }
@@ -387,7 +390,7 @@ impl From<IsisTlvAreaAddr> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvIsNeighbor {
     pub octets: [u8; 6], // MAC Address of the neighbor.
 }
@@ -418,7 +421,7 @@ impl From<IsisTlvIsNeighbor> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvPadding {
     pub padding: Vec<u8>,
 }
@@ -437,7 +440,7 @@ impl TlvEmitter for IsisTlvPadding {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisLspEntry {
     pub lifetime: u16,
     pub lsp_id: IsisLspId,
@@ -454,7 +457,7 @@ impl IsisLspEntry {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Default)]
+#[derive(Debug, NomBE, Clone, Default, Serialize)]
 pub struct IsisTlvLspEntries {
     pub entries: Vec<IsisLspEntry>,
 }
@@ -508,7 +511,7 @@ impl From<IsisProto> for u8 {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvProtoSupported {
     pub nlpids: Vec<u8>,
 }
@@ -533,7 +536,7 @@ impl From<IsisTlvProtoSupported> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvIpv4IfAddr {
     pub addr: Ipv4Addr,
 }
@@ -558,7 +561,7 @@ impl From<IsisTlvIpv4IfAddr> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvTeRouterId {
     pub router_id: Ipv4Addr,
 }
@@ -583,7 +586,7 @@ impl From<IsisTlvTeRouterId> for IsisTlv {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvHostname {
     pub hostname: String,
 }
@@ -608,7 +611,7 @@ impl From<IsisTlvHostname> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvIpv6TeRouterId {
     pub router_id: Ipv6Addr,
 }
@@ -633,7 +636,7 @@ impl From<IsisTlvIpv6TeRouterId> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvIpv6IfAddr {
     pub addr: Ipv6Addr,
 }
@@ -658,7 +661,7 @@ impl From<IsisTlvIpv6IfAddr> for IsisTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisTlvIpv6GlobalIfAddr {
     pub addr: Ipv6Addr,
 }
@@ -683,7 +686,7 @@ impl From<IsisTlvIpv6GlobalIfAddr> for IsisTlv {
     }
 }
 
-#[derive(Debug, Default, NomBE, Clone)]
+#[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisTlvUnknown {
     pub typ: IsisTlvType,
     pub len: u8,
@@ -746,7 +749,7 @@ impl ParseBe<IsisTlvHostname> for IsisTlvHostname {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisUnknown {
     #[nom(Ignore)]
     pub typ: IsisType,

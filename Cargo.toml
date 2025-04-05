@@ -25,9 +25,11 @@ bitfield-struct = "0.9"
 byteorder = "1.5"
 bytes = "1.9"
 hex = "0.4.3"
-ipnet = "2.10"
+ipnet = { version = "2.10", features = ["serde"] }
 nom = "7"
 nom-derive = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
 
 [dev-dependencies]
 hex-literal = "0.3"

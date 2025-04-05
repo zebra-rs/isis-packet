@@ -5,13 +5,15 @@ use bytes::{BufMut, BytesMut};
 use nom::number::complete::{be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
+use serde::Serialize;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use crate::{IsisTlv, IsisTlvType};
 
 use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisCapCode")]
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisCapCode::SegmentRoutingCap")]
@@ -68,7 +70,7 @@ impl IsisSubTlv {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum SidLabel {
     Label(u32),
     Index(u32),
@@ -105,6 +107,7 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
 }
 
 #[bitfield(u8, debug = true)]
+#[derive(Serialize)]
 pub struct SegmentRoutingCapFlags {
     #[bits(6)]
     pub resvd: u8,
@@ -119,7 +122,7 @@ impl ParseBe<SegmentRoutingCapFlags> for SegmentRoutingCapFlags {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubSegmentRoutingCap {
     pub flags: SegmentRoutingCapFlags,
     #[nom(Parse = "be_u24")]
@@ -157,7 +160,7 @@ impl From<IsisSubSegmentRoutingCap> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubSegmentRoutingAlgo {
     pub algo: Vec<u8>,
 }
@@ -182,7 +185,7 @@ impl From<IsisSubSegmentRoutingAlgo> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubSegmentRoutingLB {
     pub flags: u8,
     #[nom(Parse = "be_u24")]
@@ -220,7 +223,7 @@ impl From<IsisSubSegmentRoutingLB> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone)]
+#[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubNodeMaxSidDepth {
     pub flags: u8,
     pub depth: u8,
@@ -241,7 +244,7 @@ impl TlvEmitter for IsisSubNodeMaxSidDepth {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvRouterCap {
     pub router_id: Ipv4Addr,
     pub flags: u8,

@@ -15,3 +15,6 @@ psnp:
 
 l2:
 	@cargo test --quiet parse_l2 -- --nocapture
+
+json:
+	@cargo test --quiet json_test -- --nocapture

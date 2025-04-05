@@ -1,9 +1,11 @@
 use nom::number::complete::be_u8;
 use nom::IResult;
 use nom_derive::*;
+use serde::Serialize;
 
 #[repr(u8)]
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum IsisTlvType {
     #[default]
     AreaAddr = 1,
