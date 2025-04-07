@@ -24,9 +24,29 @@ pub enum IsisSubTlv {
     Unknown(IsisSubTlvUnknown),
 }
 
+#[bitfield(u8, debug = true)]
+#[derive(Serialize)]
+pub struct PrefixSidFlags {
+    #[bits(2)]
+    pub resvd: u8,
+    pub l_flag: bool,
+    pub v_flag: bool,
+    pub e_flag: bool,
+    pub p_flag: bool,
+    pub n_flag: bool,
+    pub r_flag: bool,
+}
+
+impl ParseBe<PrefixSidFlags> for PrefixSidFlags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubPrefixSid {
-    pub flags: u8,
+    pub flags: PrefixSidFlags,
     pub algo: u8,
     pub sid: u32,
 }
@@ -41,7 +61,7 @@ impl TlvEmitter for IsisSubPrefixSid {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.flags);
+        buf.put_u8(self.flags.into());
         buf.put_u8(self.algo);
         buf.put_u32(self.sid);
     }

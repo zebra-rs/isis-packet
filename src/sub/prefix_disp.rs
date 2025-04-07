@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
-use super::prefix::IsisSubTlv;
+use super::prefix::{IsisSubTlv, PrefixSidFlags};
 use super::{
     IsisSubPrefixSid, IsisTlvExtIpReach, IsisTlvExtIpReachEntry, IsisTlvIpv6Reach,
     IsisTlvIpv6ReachEntry,
@@ -73,6 +73,21 @@ impl Display for IsisSubTlv {
             PrefixSid(v) => write!(f, "{}", v),
             Unknown(v) => write!(f, "Unknown: Code {}, Length {}", v.code, v.len),
         }
+    }
+}
+
+impl Display for PrefixSidFlags {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "R:{} N:{} P:{} E:{} V:{} L:{}",
+            self.r_flag() as u8,
+            self.n_flag() as u8,
+            self.p_flag() as u8,
+            self.e_flag() as u8,
+            self.v_flag() as u8,
+            self.l_flag() as u8
+        )
     }
 }
 

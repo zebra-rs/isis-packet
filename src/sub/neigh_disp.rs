@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Result};
 
 use super::neigh::{IsisSubAdjSid, IsisSubTlv};
 use super::{
-    IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
+    AdjSidFlags, IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
     IsisSubLanAdjSid, IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
 };
 
@@ -71,6 +71,21 @@ impl Display for IsisSubIpv6NeighAddr {
     }
 }
 
+impl Display for AdjSidFlags {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "F:{} B:{} V:{} L:{} S:{} P:{}",
+            self.f_flag() as u8,
+            self.b_flag() as u8,
+            self.v_flag() as u8,
+            self.l_flag() as u8,
+            self.s_flag() as u8,
+            self.p_flag() as u8
+        )
+    }
+}
+
 impl Display for IsisSubAdjSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
@@ -83,10 +98,12 @@ impl Display for IsisSubAdjSid {
 
 impl Display for IsisSubLanAdjSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(
+        writeln!(
             f,
-            "    LAN Adjacency SID: {}, Neighbor {}, Flag: {}, Weight: {}",
-            self.sid, self.system_id, self.flags, self.weight
+            "    LAN Adjacency SID: {}, Weight: {}, Neighbor ID: {}",
+            self.sid, self.weight, self.system_id
         )
+        .unwrap();
+        write!(f, "     Flags: {}", self.flags)
     }
 }

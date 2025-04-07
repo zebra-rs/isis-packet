@@ -1,5 +1,6 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
+use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
 use nom::number::complete::{be_u24, be_u8};
@@ -229,9 +230,29 @@ impl TlvEmitter for IsisSubIpv6NeighAddr {
     }
 }
 
+#[bitfield(u8, debug = true)]
+#[derive(Serialize)]
+pub struct AdjSidFlags {
+    #[bits(2)]
+    pub resvd: u8,
+    pub p_flag: bool,
+    pub s_flag: bool,
+    pub l_flag: bool,
+    pub v_flag: bool,
+    pub b_flag: bool,
+    pub f_flag: bool,
+}
+
+impl ParseBe<AdjSidFlags> for AdjSidFlags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubAdjSid {
-    pub flags: u8,
+    pub flags: AdjSidFlags,
     pub weight: u8,
     #[nom(Parse = "be_u24")]
     pub sid: u32,
@@ -247,7 +268,7 @@ impl TlvEmitter for IsisSubAdjSid {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.flags);
+        buf.put_u8(self.flags.into());
         buf.put_u8(self.weight);
         buf.put(&u32_u8_3(self.sid)[..]);
     }
@@ -255,7 +276,7 @@ impl TlvEmitter for IsisSubAdjSid {
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubLanAdjSid {
-    pub flags: u8,
+    pub flags: AdjSidFlags,
     pub weight: u8,
     pub system_id: IsisSysId,
     #[nom(Parse = "be_u24")]
@@ -272,7 +293,7 @@ impl TlvEmitter for IsisSubLanAdjSid {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.flags);
+        buf.put_u8(self.flags.into());
         buf.put_u8(self.weight);
         buf.put(&self.system_id.id[..]);
         buf.put(&u32_u8_3(self.sid)[..]);
