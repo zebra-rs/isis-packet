@@ -47,7 +47,7 @@ impl Display for IsisSubSegmentRoutingCap {
             r#"   Segment Routing Capability: {}
     Range: {}
     SID: {:?}"#,
-            self.flags, self.range, self.sid
+            self.flags, self.range, self.sid_label
         )
     }
 }
@@ -71,7 +71,7 @@ impl Display for IsisSubSegmentRoutingLB {
     Flags: {}
     Range: {}
     SID: {:?}"#,
-            self.flags, self.range, self.sid
+            self.flags, self.range, self.sid_label
         )
     }
 }

@@ -71,14 +71,14 @@ impl IsisSubTlv {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub enum SidLabel {
+pub enum SidLabelTlv {
     Label(u32),
     Index(u32),
 }
 
-impl SidLabel {
+impl SidLabelTlv {
     pub fn len(&self) -> u8 {
-        use SidLabel::*;
+        use SidLabelTlv::*;
         match self {
             Label(_) => 3,
             Index(_) => 4,
@@ -88,19 +88,29 @@ impl SidLabel {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    pub fn emit(&self, buf: &mut BytesMut) {
+        use SidLabelTlv::*;
+        buf.put_u8(1); // RFC8667 2.3. SID/Label Type is always 1.
+        buf.put_u8(self.len());
+        match self {
+            Label(v) => buf.put(&u32_u8_3(*v)[..]),
+            Index(v) => buf.put_u32(*v),
+        }
+    }
 }
 
-pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabel> {
+pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabelTlv> {
     let (input, _typ) = be_u8(input)?;
     let (input, len) = be_u8(input)?;
     match len {
         3 => {
             let (input, label) = be_u24(input)?;
-            Ok((input, SidLabel::Label(label)))
+            Ok((input, SidLabelTlv::Label(label)))
         }
         4 => {
             let (input, index) = be_u32(input)?;
-            Ok((input, SidLabel::Index(index)))
+            Ok((input, SidLabelTlv::Index(index)))
         }
         _ => Err(Err::Incomplete(Needed::new(len as usize))),
     }
@@ -128,7 +138,7 @@ pub struct IsisSubSegmentRoutingCap {
     #[nom(Parse = "be_u24")]
     pub range: u32,
     #[nom(Parse = "parse_sid_label")]
-    pub sid: SidLabel,
+    pub sid_label: SidLabelTlv,
 }
 
 impl TlvEmitter for IsisSubSegmentRoutingCap {
@@ -138,19 +148,13 @@ impl TlvEmitter for IsisSubSegmentRoutingCap {
 
     fn len(&self) -> u8 {
         // Flags: 1 + Range: 3 + SID Type:1 + SID Length: 1 + SID.
-        1 + 3 + 1 + 1 + self.sid.len()
+        1 + 3 + 1 + 1 + self.sid_label.len()
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        use SidLabel::*;
         buf.put_u8(self.flags.into());
         buf.put(&u32_u8_3(self.range)[..]);
-        buf.put_u8(1); // RFC8667 2.3. SID/Label Type is always 1.
-        buf.put_u8(self.sid.len());
-        match self.sid {
-            Label(v) => buf.put(&u32_u8_3(v)[..]),
-            Index(v) => buf.put_u32(v),
-        }
+        self.sid_label.emit(buf);
     }
 }
 
@@ -191,7 +195,7 @@ pub struct IsisSubSegmentRoutingLB {
     #[nom(Parse = "be_u24")]
     pub range: u32,
     #[nom(Parse = "parse_sid_label")]
-    pub sid: SidLabel,
+    pub sid_label: SidLabelTlv,
 }
 
 impl TlvEmitter for IsisSubSegmentRoutingLB {
@@ -201,19 +205,13 @@ impl TlvEmitter for IsisSubSegmentRoutingLB {
 
     fn len(&self) -> u8 {
         // Flags: 1 + Range: 3 + SID Type:1 + SID Length: 1 + SID.
-        1 + 3 + 1 + 1 + self.sid.len()
+        1 + 3 + 1 + 1 + self.sid_label.len()
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        use SidLabel::*;
         buf.put_u8(self.flags);
         buf.put(&u32_u8_3(self.range)[..]);
-        buf.put_u8(1); // RFC8667 2.3. SID/Label Type: 1.
-        buf.put_u8(self.sid.len());
-        match self.sid {
-            Label(v) => buf.put(&u32_u8_3(v)[..]),
-            Index(v) => buf.put_u32(v),
-        }
+        self.sid_label.emit(buf);
     }
 }
 
