@@ -788,6 +788,14 @@ impl SidLabelValue {
             Index(v) => buf.put_u32(*v),
         }
     }
+
+    pub fn value(&self) -> u32 {
+        use SidLabelValue::*;
+        match self {
+            Label(v) => *v,
+            Index(v) => *v,
+        }
+    }
 }
 
 impl ParseBe<SidLabelValue> for SidLabelValue {
@@ -801,7 +809,7 @@ impl ParseBe<SidLabelValue> for SidLabelValue {
                 let (input, index) = be_u32(input)?;
                 Ok((input, SidLabelValue::Index(index)))
             }
-            _ => Err(Err::Incomplete(Needed::new(input.len() as usize))),
+            _ => Err(Err::Incomplete(Needed::new(input.len()))),
         }
     }
 }

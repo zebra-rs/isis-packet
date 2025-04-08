@@ -54,14 +54,12 @@ impl Display for IsisLsp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS LSP ==
- PDU length: {}
+            r#" PDU length: {}
  Lifetime: {}
  LSP ID: {}
  Sequence number: 0x{:x}
- Checksum: 0x{:x}
- Type block: {:x}"#,
-            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum, self.types,
+ Checksum: 0x{:x}"#,
+            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum
         )?;
         for tlv in self.tlvs.iter() {
             write!(f, "\n{}", tlv)?;
@@ -74,8 +72,7 @@ impl Display for IsisHello {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS Hello ==
- Circuit type: {}
+            r#" Circuit type: {}
  Source ID: {}
  Holding timer: {}
  PDU length: {}
@@ -99,8 +96,7 @@ impl Display for IsisCsnp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS CSNP ==
- PDU length: {}
+            r#" PDU length: {}
  Source ID: {:?}
  Source ID Curcuit: {}
  Start: {:?}
@@ -118,8 +114,7 @@ impl Display for IsisPsnp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"== IS-IS PSNP ==
- PDU length: {}
+            r#" PDU length: {}
  Source ID: {}
  Source ID Curcuit: {}"#,
             self.pdu_len, self.source_id, 0,
@@ -198,7 +193,7 @@ impl Display for IsisLspId {
 
 impl Display for IsisTlvAreaAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Area address: (len: {})", self.area_addr.len(),).unwrap();
+        write!(f, "  Area address:").unwrap();
         if !self.area_addr.is_empty() {
             write!(f, " {:02x}", self.area_addr[0]).unwrap();
 
@@ -280,7 +275,7 @@ impl Display for IsisTlvProtoSupported {
 
 impl Display for IsisTlvIpv4IfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  IPv4 interface addr: {}", self.addr)
+        write!(f, "  IPv4 Interface Address: {}", self.addr)
     }
 }
 
@@ -304,13 +299,13 @@ impl Display for IsisTlvIpv6TeRouterId {
 
 impl Display for IsisTlvIpv6IfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  IPv6 interface addr: {}", self.addr)
+        write!(f, "  IPv6 Interface Address: {}", self.addr)
     }
 }
 
 impl Display for IsisTlvIpv6GlobalIfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  IPv6 global interface addr: {}", self.addr)
+        write!(f, "  IPv6 Global Interface Address: {}", self.addr)
     }
 }
 

@@ -10,7 +10,7 @@ use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, ParseBe, TlvEmitter};
-use crate::{IsisTlvType, SidLabelValue};
+use crate::{Algo, IsisTlvType, SidLabelValue};
 
 use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -47,7 +47,7 @@ impl ParseBe<PrefixSidFlags> for PrefixSidFlags {
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisSubPrefixSid {
     pub flags: PrefixSidFlags,
-    pub algo: u8,
+    pub algo: Algo,
     pub sid: SidLabelValue,
 }
 
@@ -62,7 +62,7 @@ impl TlvEmitter for IsisSubPrefixSid {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags.into());
-        buf.put_u8(self.algo);
+        buf.put_u8(self.algo.into());
         self.sid.emit(buf);
     }
 }
@@ -337,7 +337,8 @@ impl IsisTlvIpv6ReachEntry {
 }
 
 pub fn psize(plen: u8) -> usize {
-    ((plen + 7) / 8) as usize
+    // ((plen + 7) / 8) as usize: From Rust 1.73 we can use .dev_ceil().
+    (plen as usize).div_ceil(8)
 }
 
 pub fn ptake(input: &[u8], prefixlen: u8) -> IResult<&[u8], Ipv4Net> {

@@ -1,17 +1,22 @@
 use std::fmt::{Display, Formatter, Result};
 
-use super::cap::IsisSubTlv;
+use super::cap::{IsisSubTlv, RouterCapFlags};
 use super::{
     IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
     IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags,
 };
 
+impl Display for RouterCapFlags {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "D:{} S:{}", self.d_flag() as u8, self.s_flag() as u8)
+    }
+}
+
 impl Display for IsisTlvRouterCap {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"  Router Capability: {}
-   Flags: {}"#,
+            r#"  Router Capability: {}, {}"#,
             self.router_id, self.flags
         )?;
         for sub in self.subs.iter() {
@@ -44,22 +49,15 @@ impl Display for IsisSubSegmentRoutingCap {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   Segment Routing Capability: {}
-    Range: {}
-    SID: {:?}"#,
-            self.flags, self.range, self.sid_label
+            r#"   Segment Routing: {}, Global Block: {:?}, Range: {}"#,
+            self.flags, self.sid_label, self.range
         )
     }
 }
 
 impl Display for IsisSubSegmentRoutingAlgo {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(
-            f,
-            r#"   Segment Routing Algorithm:
-    Algo: {:?}"#,
-            self.algo
-        )
+        write!(f, r#"   Segment Routing Algorithm: {:?}"#, self.algo)
     }
 }
 
@@ -67,11 +65,8 @@ impl Display for IsisSubSegmentRoutingLB {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   Segment Routing Local Block:
-    Flags: {}
-    Range: {}
-    SID: {:?}"#,
-            self.flags, self.range, self.sid_label
+            r#"   Segment Routing Local Block: {:?}, Range: {}"#,
+            self.sid_label, self.range
         )
     }
 }
@@ -80,8 +75,7 @@ impl Display for IsisSubNodeMaxSidDepth {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   Node Maximum SID Depth: : MSD Type {}
-    MSD Value: {}"#,
+            r#"   Node Maximum SID Depth: Type:{}, Value:{}"#,
             self.flags, self.depth
         )
     }

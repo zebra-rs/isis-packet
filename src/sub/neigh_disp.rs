@@ -49,25 +49,25 @@ impl Display for IsisSubTlv {
 
 impl Display for IsisSubIpv4IfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "    IPv4 interface addr: {}", self.addr)
+        write!(f, "    IPv4 Interface Address: {}", self.addr)
     }
 }
 
 impl Display for IsisSubIpv4NeighAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "    IPv4 neighbor addr: {}", self.addr)
+        write!(f, "    IPv4 Neighbor Address: {}", self.addr)
     }
 }
 
 impl Display for IsisSubIpv6IfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "    IPv6 interface addr: {}", self.addr)
+        write!(f, "    IPv6 Interface Address: {}", self.addr)
     }
 }
 
 impl Display for IsisSubIpv6NeighAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "    IPv6 neighbor addr: {}", self.addr)
+        write!(f, "    IPv6 Neighbor Address: {}", self.addr)
     }
 }
 
@@ -90,7 +90,7 @@ impl Display for IsisSubAdjSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            "    Adjacency SID: {}, Flag: {}, Weight: {}",
+            "    Adjacency SID: {:?}, Flag: {}, Weight: {}",
             self.sid, self.flags, self.weight
         )
     }
@@ -100,7 +100,7 @@ impl Display for IsisSubLanAdjSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         writeln!(
             f,
-            "    LAN Adjacency SID: {}, Weight: {}, Neighbor ID: {}",
+            "    LAN Adjacency SID: {:?}, Weight: {}, Neighbor ID: {}",
             self.sid, self.weight, self.system_id
         )
         .unwrap();

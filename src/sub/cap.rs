@@ -3,12 +3,12 @@ use std::net::Ipv4Addr;
 use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use nom::number::complete::{be_u24, be_u32, be_u8};
-use nom::{AsBytes, Err, IResult, Needed};
+use nom::{Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::{IsisTlv, IsisTlvType};
+use crate::{Algo, IsisTlv, IsisTlvType};
 
 use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -164,9 +164,16 @@ impl From<IsisSubSegmentRoutingCap> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IsisSubSegmentRoutingAlgo {
-    pub algo: Vec<u8>,
+    pub algo: Vec<Algo>,
+}
+
+impl ParseBe<IsisSubSegmentRoutingAlgo> for IsisSubSegmentRoutingAlgo {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, algo) = many0(Algo::parse_be)(input)?;
+        Ok((input, Self { algo }))
+    }
 }
 
 impl TlvEmitter for IsisSubSegmentRoutingAlgo {
@@ -179,7 +186,9 @@ impl TlvEmitter for IsisSubSegmentRoutingAlgo {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put(self.algo.as_bytes())
+        for algo in self.algo.clone() {
+            buf.put_u8(algo.into());
+        }
     }
 }
 
@@ -242,10 +251,26 @@ impl TlvEmitter for IsisSubNodeMaxSidDepth {
     }
 }
 
+#[bitfield(u8, debug = true)]
+#[derive(Serialize)]
+pub struct RouterCapFlags {
+    #[bits(6)]
+    pub resvd: u8,
+    pub d_flag: bool,
+    pub s_flag: bool,
+}
+
+impl ParseBe<RouterCapFlags> for RouterCapFlags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct IsisTlvRouterCap {
     pub router_id: Ipv4Addr,
-    pub flags: u8,
+    pub flags: RouterCapFlags,
     pub subs: Vec<IsisSubTlv>,
 }
 
@@ -256,7 +281,7 @@ impl ParseBe<IsisTlvRouterCap> for IsisTlvRouterCap {
         let (input, subs) = many0(IsisSubTlv::parse_subs)(input)?;
         let tlv = Self {
             router_id,
-            flags,
+            flags: flags.into(),
             subs,
         };
         Ok((input, tlv))
@@ -280,7 +305,7 @@ impl TlvEmitter for IsisTlvRouterCap {
 
     fn emit(&self, buf: &mut bytes::BytesMut) {
         buf.put(&self.router_id.octets()[..]);
-        buf.put_u8(self.flags);
+        buf.put_u8(self.flags.into());
         self.subs.iter().for_each(|sub| sub.emit(buf));
     }
 }
