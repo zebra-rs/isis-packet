@@ -57,7 +57,11 @@ impl Display for IsisSubSegmentRoutingCap {
 
 impl Display for IsisSubSegmentRoutingAlgo {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, r#"   Segment Routing Algorithm: {:?}"#, self.algo)
+        write!(f, r#"   Segment Routing Algorithm:"#).unwrap();
+        for algo in &self.algo {
+            write!(f, " {}", algo).unwrap();
+        }
+        Ok(())
     }
 }
 

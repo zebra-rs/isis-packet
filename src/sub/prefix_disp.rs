@@ -97,7 +97,7 @@ impl Display for IsisSubPrefixSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   SID: {:?}, Algorithm: {:?}, Flags: {}"#,
+            r#"   SID: {:?}, Algorithm: {}, Flags: {}"#,
             self.sid, self.algo, self.flags,
         )
     }

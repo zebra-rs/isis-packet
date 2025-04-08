@@ -1,10 +1,11 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket, IsisPdu,
-    IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr,
-    IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId, IsisTlvIsNeighbor,
-    IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId, SidLabelValue,
+    Algo, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket,
+    IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
+    IsisTlvIpv4IfAddr, IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId,
+    IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId,
+    SidLabelValue,
 };
 
 impl Display for IsisPacket {
@@ -52,15 +53,15 @@ impl Display for IsisPdu {
 
 impl Display for IsisLsp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(
-            f,
-            r#" PDU length: {}
- Lifetime: {}
- LSP ID: {}
- Sequence number: 0x{:x}
- Checksum: 0x{:x}"#,
-            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum
-        )?;
+        //        write!(
+        //            f,
+        //            r#" PDU length: {}
+        // Lifetime: {}
+        // LSP ID: {}
+        // Sequence number: 0x{:x}
+        // Checksum: 0x{:x}"#,
+        //            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum
+        //        )?;
         for tlv in self.tlvs.iter() {
             write!(f, "\n{}", tlv)?;
         }
@@ -318,6 +319,18 @@ impl Display for SidLabelValue {
             SidLabelValue::Index(v) => {
                 write!(f, "{}", v)
             }
+        }
+    }
+}
+
+impl Display for Algo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        use Algo::*;
+        match self {
+            Spf => write!(f, "SPF(0)"),
+            StrictSpf => write!(f, "StrictSPF(1)"),
+            FlexAlgo(v) => write!(f, "FlexAlgo({})", v),
+            Unknown(v) => write!(f, "Unknown({})", v),
         }
     }
 }
