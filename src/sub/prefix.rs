@@ -10,7 +10,7 @@ use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, ParseBe, TlvEmitter};
-use crate::IsisTlvType;
+use crate::{IsisTlvType, SidLabelValue};
 
 use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -48,7 +48,7 @@ impl ParseBe<PrefixSidFlags> for PrefixSidFlags {
 pub struct IsisSubPrefixSid {
     pub flags: PrefixSidFlags,
     pub algo: u8,
-    pub sid: u32,
+    pub sid: SidLabelValue,
 }
 
 impl TlvEmitter for IsisSubPrefixSid {
@@ -57,13 +57,13 @@ impl TlvEmitter for IsisSubPrefixSid {
     }
 
     fn len(&self) -> u8 {
-        6
+        2 + self.sid.len()
     }
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags.into());
         buf.put_u8(self.algo);
-        buf.put_u32(self.sid);
+        self.sid.emit(buf);
     }
 }
 

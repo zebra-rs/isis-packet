@@ -4,7 +4,7 @@ use crate::{
     IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket, IsisPdu,
     IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname, IsisTlvIpv4IfAddr,
     IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId, IsisTlvIsNeighbor,
-    IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId,
+    IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId, SidLabelValue,
 };
 
 impl Display for IsisPacket {
@@ -311,5 +311,18 @@ impl Display for IsisTlvIpv6IfAddr {
 impl Display for IsisTlvIpv6GlobalIfAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "  IPv6 global interface addr: {}", self.addr)
+    }
+}
+
+impl Display for SidLabelValue {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            SidLabelValue::Label(v) => {
+                write!(f, "{}", v)
+            }
+            SidLabelValue::Index(v) => {
+                write!(f, "{}", v)
+            }
+        }
     }
 }

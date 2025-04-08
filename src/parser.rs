@@ -3,12 +3,12 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u128, be_u32, be_u8};
+use nom::number::complete::{be_u128, be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
-use super::util::{many0, ParseBe, TlvEmitter};
+use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
     IsisTlvRouterCap, IsisTlvType, IsisType,
@@ -760,6 +760,50 @@ pub struct IsisUnknown {
 pub struct IsisTypeLen {
     pub typ: IsisTlvType,
     pub len: u8,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum SidLabelValue {
+    Label(u32),
+    Index(u32),
+}
+
+impl SidLabelValue {
+    pub fn len(&self) -> u8 {
+        use SidLabelValue::*;
+        match self {
+            Label(_) => 3,
+            Index(_) => 4,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn emit(&self, buf: &mut BytesMut) {
+        use SidLabelValue::*;
+        match self {
+            Label(v) => buf.put(&u32_u8_3(*v)[..]),
+            Index(v) => buf.put_u32(*v),
+        }
+    }
+}
+
+impl ParseBe<SidLabelValue> for SidLabelValue {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        match input.len() {
+            3 => {
+                let (input, label) = be_u24(input)?;
+                Ok((input, SidLabelValue::Label(label)))
+            }
+            4 => {
+                let (input, index) = be_u32(input)?;
+                Ok((input, SidLabelValue::Index(index)))
+            }
+            _ => Err(Err::Incomplete(Needed::new(input.len() as usize))),
+        }
+    }
 }
 
 impl IsisTlv {

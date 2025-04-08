@@ -9,7 +9,9 @@ use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
-use crate::{IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, IPV4_ADDR_LEN, IPV6_ADDR_LEN};
+use crate::{
+    IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, SidLabelValue, IPV4_ADDR_LEN, IPV6_ADDR_LEN,
+};
 
 use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
 
@@ -254,8 +256,7 @@ impl ParseBe<AdjSidFlags> for AdjSidFlags {
 pub struct IsisSubAdjSid {
     pub flags: AdjSidFlags,
     pub weight: u8,
-    #[nom(Parse = "be_u24")]
-    pub sid: u32,
+    pub sid: SidLabelValue,
 }
 
 impl TlvEmitter for IsisSubAdjSid {
@@ -264,13 +265,13 @@ impl TlvEmitter for IsisSubAdjSid {
     }
 
     fn len(&self) -> u8 {
-        5
+        2 + self.sid.len()
     }
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags.into());
         buf.put_u8(self.weight);
-        buf.put(&u32_u8_3(self.sid)[..]);
+        self.sid.emit(buf);
     }
 }
 
@@ -279,8 +280,7 @@ pub struct IsisSubLanAdjSid {
     pub flags: AdjSidFlags,
     pub weight: u8,
     pub system_id: IsisSysId,
-    #[nom(Parse = "be_u24")]
-    pub sid: u32,
+    pub sid: SidLabelValue,
 }
 
 impl TlvEmitter for IsisSubLanAdjSid {
@@ -289,13 +289,13 @@ impl TlvEmitter for IsisSubLanAdjSid {
     }
 
     fn len(&self) -> u8 {
-        11
+        8 + self.sid.len()
     }
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags.into());
         buf.put_u8(self.weight);
         buf.put(&self.system_id.id[..]);
-        buf.put(&u32_u8_3(self.sid)[..]);
+        self.sid.emit(buf);
     }
 }
