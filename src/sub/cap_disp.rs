@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 use super::cap::IsisSubTlv;
 use super::{
     IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
-    IsisSubSegmentRoutingLB, IsisTlvRouterCap,
+    IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags,
 };
 
 impl Display for IsisTlvRouterCap {
@@ -34,12 +34,17 @@ impl Display for IsisSubTlv {
     }
 }
 
+impl Display for SegmentRoutingCapFlags {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "I:{} V:{}", self.i_flag() as u8, self.v_flag() as u8,)
+    }
+}
+
 impl Display for IsisSubSegmentRoutingCap {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   Segment Routing Capability:
-    Flags: {:?}
+            r#"   Segment Routing Capability: {}
     Range: {}
     SID: {:?}"#,
             self.flags, self.range, self.sid
