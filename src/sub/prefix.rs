@@ -20,6 +20,8 @@ use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
 pub enum IsisSubTlv {
     #[nom(Selector = "IsisPrefixCode::PrefixSid")]
     PrefixSid(IsisSubPrefixSid),
+    #[nom(Selector = "IsisPrefixCode::Srv6EndSid")]
+    Srv6EndSid(IsisSubSrv6EndSid),
     #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
 }
@@ -67,6 +69,44 @@ impl TlvEmitter for IsisSubPrefixSid {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct IsisSubSrv6EndSid {
+    pub flags: u8,
+    pub behavior: u16,
+    pub sids: Vec<Ipv6Addr>,
+}
+
+impl ParseBe<IsisSubSrv6EndSid> for IsisSubSrv6EndSid {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        let (input, behavior) = be_u16(input)?;
+        Ok((
+            input,
+            Self {
+                flags,
+                behavior,
+                sids: vec![],
+            },
+        ))
+    }
+}
+
+impl TlvEmitter for IsisSubSrv6EndSid {
+    fn typ(&self) -> u8 {
+        IsisPrefixCode::Srv6EndSid.into()
+    }
+
+    fn len(&self) -> u8 {
+        0
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.flags);
+        buf.put_u16(self.behavior);
+        // self.sids.emit(buf);
+    }
+}
+
 impl IsisSubTlv {
     pub fn parse_subs(input: &[u8]) -> IResult<&[u8], Self> {
         let (input, cl) = IsisSubCodeLen::parse_be(input)?;
@@ -86,6 +126,7 @@ impl IsisSubTlv {
         use IsisSubTlv::*;
         match self {
             PrefixSid(v) => v.len(),
+            Srv6EndSid(v) => v.len(),
             Unknown(v) => v.len,
         }
     }
@@ -98,6 +139,7 @@ impl IsisSubTlv {
         use IsisSubTlv::*;
         match self {
             PrefixSid(v) => v.tlv_emit(buf),
+            Srv6EndSid(v) => v.tlv_emit(buf),
             Unknown(v) => v.tlv_emit(buf),
         }
     }
@@ -337,7 +379,8 @@ impl IsisTlvIpv6ReachEntry {
 }
 
 pub fn psize(plen: u8) -> usize {
-    // ((plen + 7) / 8) as usize: From Rust 1.73 we can use .dev_ceil().
+    // From Rust 1.73 we can use .dev_ceil()
+    // ((plen + 7) / 8) as usize
     (plen as usize).div_ceil(8)
 }
 
@@ -419,5 +462,89 @@ impl ParseBe<IsisTlvIpv6ReachEntry> for IsisTlvIpv6ReachEntry {
         let (_, subs) = many0(IsisSubTlv::parse_subs)(sub)?;
         tlv.subs = subs;
         Ok((input, tlv))
+    }
+}
+
+#[bitfield(u16, debug = true)]
+#[derive(Serialize)]
+pub struct Srv6TlvFlags {
+    #[bits(4)]
+    pub resvd: u8,
+    #[bits(12)]
+    pub v_flag: u16,
+}
+
+impl ParseBe<Srv6TlvFlags> for Srv6TlvFlags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u16(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct Srv6Locator {
+    pub metric: u32,
+    pub flags: u8,
+    pub algo: Algo,
+    pub locator: Ipv6Net,
+    pub subs: Vec<IsisSubTlv>,
+}
+
+impl ParseBe<Srv6Locator> for Srv6Locator {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, metric) = be_u32(input)?;
+        let (input, flags) = be_u8(input)?;
+        let (input, algo) = be_u8(input)?;
+        let (input, prefixlen) = be_u8(input)?;
+        let (input, locator) = ptakev6(input, prefixlen)?;
+        let mut tlv = Self {
+            metric,
+            flags,
+            algo: algo.into(),
+            locator,
+            subs: Vec::new(),
+        };
+        let (input, sublen) = be_u8(input)?;
+        if sublen == 0 {
+            return Ok((input, tlv));
+        }
+        let (sub, input) = input.split_at(sublen as usize);
+        let (_, subs) = many0(IsisSubTlv::parse_subs)(sub)?;
+        tlv.subs = subs;
+        Ok((input, tlv))
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct IsisTlvSrv6 {
+    pub flags: Srv6TlvFlags,
+    pub locators: Vec<Srv6Locator>,
+}
+
+impl ParseBe<IsisTlvSrv6> for IsisTlvSrv6 {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u16(input)?;
+        let (input, locators) = many0(Srv6Locator::parse_be)(input)?;
+        Ok((
+            input,
+            Self {
+                flags: flags.into(),
+                locators,
+            },
+        ))
+    }
+}
+
+impl TlvEmitter for IsisTlvSrv6 {
+    fn typ(&self) -> u8 {
+        IsisTlvType::Srv6.into()
+    }
+
+    fn len(&self) -> u8 {
+        0
+    }
+
+    fn emit(&self, _buf: &mut BytesMut) {
+        //
     }
 }

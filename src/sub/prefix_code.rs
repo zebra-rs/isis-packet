@@ -7,6 +7,7 @@ use nom_derive::*;
 pub enum IsisPrefixCode {
     #[default]
     PrefixSid = 3,
+    Srv6EndSid = 5,
     Unknown(u8),
 }
 
@@ -15,6 +16,7 @@ impl From<IsisPrefixCode> for u8 {
         use IsisPrefixCode::*;
         match typ {
             PrefixSid => 3,
+            Srv6EndSid => 3,
             Unknown(v) => v,
         }
     }
@@ -25,6 +27,7 @@ impl From<u8> for IsisPrefixCode {
         use IsisPrefixCode::*;
         match typ {
             3 => PrefixSid,
+            5 => Srv6EndSid,
             v => Unknown(v),
         }
     }

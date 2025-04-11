@@ -263,7 +263,7 @@ impl Display for IsisTlvLspEntries {
 
 impl Display for IsisTlvSrv6 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  SRv6")
+        write!(f, "  SRv6: {:?}", self.locators)
     }
 }
 

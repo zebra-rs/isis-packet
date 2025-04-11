@@ -18,7 +18,7 @@ pub mod neigh_disp;
 pub mod prefix;
 pub use prefix::{
     IsisSubPrefixSid, IsisTlvExtIpReach, IsisTlvExtIpReachEntry, IsisTlvIpv6Reach,
-    IsisTlvIpv6ReachEntry, IsisTlvMtIpReach, IsisTlvMtIpv6Reach, PrefixSidFlags,
+    IsisTlvIpv6ReachEntry, IsisTlvMtIpReach, IsisTlvMtIpv6Reach, IsisTlvSrv6, PrefixSidFlags,
 };
 pub mod prefix_code;
 pub use prefix_code::IsisPrefixCode;
@@ -32,9 +32,6 @@ pub use cap::{
 pub mod cap_code;
 pub use cap_code::IsisCapCode;
 pub mod cap_disp;
-
-pub mod srv6;
-pub use srv6::IsisTlvSrv6;
 
 pub mod unknown;
 pub use unknown::IsisSubTlvUnknown;
