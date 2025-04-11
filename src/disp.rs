@@ -4,8 +4,8 @@ use crate::{
     Algo, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket,
     IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
     IsisTlvIpv4IfAddr, IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId,
-    IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvTeRouterId,
-    SidLabelValue,
+    IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvSrv6,
+    IsisTlvTeRouterId, SidLabelValue,
 };
 
 impl Display for IsisPacket {
@@ -136,6 +136,7 @@ impl Display for IsisTlv {
             Padding(v) => write!(f, "{}", v),
             LspEntries(v) => write!(f, "{}", v),
             ExtIsReach(v) => write!(f, "{}", v),
+            Srv6(v) => write!(f, "{}", v),
             ProtoSupported(v) => write!(f, "{}", v),
             Ipv4IfAddr(v) => write!(f, "{}", v),
             TeRouterId(v) => write!(f, "{}", v),
@@ -144,12 +145,16 @@ impl Display for IsisTlv {
             Ipv6TeRouterId(v) => write!(f, "{}", v),
             Ipv6IfAddr(v) => write!(f, "{}", v),
             Ipv6GlobalIfAddr(v) => write!(f, "{}", v),
-            // MtIpReach(v) => write!(f, "{}", v),
             Ipv6Reach(v) => write!(f, "{}", v),
-            // MtIpv6Reach(v) => write!(f, "{}", v),
             RouterCap(v) => write!(f, "{}", v),
-            _ => {
-                write!(f, "  Unknown")
+            MtIpReach(_) => {
+                write!(f, "")
+            }
+            MtIpv6Reach(_) => {
+                write!(f, "")
+            }
+            Unknown(v) => {
+                write!(f, "  {:?}", v.typ)
             }
         }
     }
@@ -253,6 +258,12 @@ impl Display for IsisTlvLspEntries {
             write!(f, "\n{}", entry)?;
         }
         Ok(())
+    }
+}
+
+impl Display for IsisTlvSrv6 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "  SRv6")
     }
 }
 

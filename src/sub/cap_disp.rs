@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
-use super::cap::{IsisSubTlv, RouterCapFlags};
+use super::cap::{IsisSubSrv6, IsisSubTlv, RouterCapFlags};
 use super::{
     IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
     IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags,
@@ -34,7 +34,8 @@ impl Display for IsisSubTlv {
             SegmentRoutingAlgo(v) => write!(f, "{}", v),
             SegmentRoutingLB(v) => write!(f, "{}", v),
             NodeMaxSidDepth(v) => write!(f, "{}", v),
-            Unknown(v) => write!(f, "Unknown Code: {} Len: {}", v.code, v.len),
+            Srv6(v) => write!(f, "{}", v),
+            Unknown(v) => write!(f, "   Unknown Code: {} Len: {}", v.code, v.len),
         }
     }
 }
@@ -82,5 +83,11 @@ impl Display for IsisSubNodeMaxSidDepth {
             r#"   Node Maximum SID Depth: Type:{}, Value:{}"#,
             self.flags, self.depth
         )
+    }
+}
+
+impl Display for IsisSubSrv6 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, r#"   SRv6: O:{}"#, self.flags.o_flag() as u8)
     }
 }

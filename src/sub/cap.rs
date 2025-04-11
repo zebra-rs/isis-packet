@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 
 use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
-use nom::number::complete::{be_u24, be_u32, be_u8};
+use nom::number::complete::{be_u16, be_u24, be_u32, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
@@ -24,6 +24,8 @@ pub enum IsisSubTlv {
     SegmentRoutingLB(IsisSubSegmentRoutingLB),
     #[nom(Selector = "IsisCapCode::NodeMaxSidDepth")]
     NodeMaxSidDepth(IsisSubNodeMaxSidDepth),
+    #[nom(Selector = "IsisCapCode::Srv6")]
+    Srv6(IsisSubSrv6),
     #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
 }
@@ -50,6 +52,7 @@ impl IsisSubTlv {
             SegmentRoutingAlgo(v) => v.len(),
             SegmentRoutingLB(v) => v.len(),
             NodeMaxSidDepth(v) => v.len(),
+            Srv6(v) => v.len(),
             Unknown(v) => v.len,
         }
     }
@@ -65,6 +68,7 @@ impl IsisSubTlv {
             SegmentRoutingAlgo(v) => v.tlv_emit(buf),
             SegmentRoutingLB(v) => v.tlv_emit(buf),
             NodeMaxSidDepth(v) => v.tlv_emit(buf),
+            Srv6(v) => v.tlv_emit(buf),
             Unknown(v) => v.tlv_emit(buf),
         }
     }
@@ -313,5 +317,40 @@ impl TlvEmitter for IsisTlvRouterCap {
 impl From<IsisTlvRouterCap> for IsisTlv {
     fn from(tlv: IsisTlvRouterCap) -> Self {
         IsisTlv::RouterCap(tlv)
+    }
+}
+
+#[bitfield(u16, debug = true)]
+#[derive(Serialize)]
+pub struct Srv6Flags {
+    #[bits(14)]
+    pub resvd2: u16,
+    pub o_flag: bool,
+    pub resvd1: bool,
+}
+
+impl ParseBe<Srv6Flags> for Srv6Flags {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u16(input)?;
+        Ok((input, flags.into()))
+    }
+}
+
+#[derive(Debug, NomBE, Clone, Serialize)]
+pub struct IsisSubSrv6 {
+    pub flags: Srv6Flags,
+}
+
+impl TlvEmitter for IsisSubSrv6 {
+    fn typ(&self) -> u8 {
+        IsisCapCode::Srv6.into()
+    }
+
+    fn len(&self) -> u8 {
+        2
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u16(self.flags.into());
     }
 }

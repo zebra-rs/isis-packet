@@ -33,5 +33,8 @@ pub mod cap_code;
 pub use cap_code::IsisCapCode;
 pub mod cap_disp;
 
+pub mod srv6;
+pub use srv6::IsisTlvSrv6;
+
 pub mod unknown;
 pub use unknown::IsisSubTlvUnknown;

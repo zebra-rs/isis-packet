@@ -13,6 +13,7 @@ pub enum IsisTlvType {
     Padding = 8,
     LspEntries = 9,
     ExtIsReach = 22,
+    Srv6 = 27,
     ProtSupported = 129,
     Ipv4IfAddr = 132,
     TeRouterId = 134,
@@ -46,6 +47,7 @@ impl IsisTlvType {
                 | Padding
                 | LspEntries
                 | ExtIsReach
+                | Srv6
                 | ProtSupported
                 | Ipv4IfAddr
                 | TeRouterId
@@ -71,6 +73,7 @@ impl From<IsisTlvType> for u8 {
             Padding => 8,
             LspEntries => 9,
             ExtIsReach => 22,
+            Srv6 => 27,
             ProtSupported => 129,
             Ipv4IfAddr => 132,
             TeRouterId => 134,
@@ -97,6 +100,7 @@ impl From<u8> for IsisTlvType {
             8 => Padding,
             9 => LspEntries,
             22 => ExtIsReach,
+            27 => Srv6,
             129 => ProtSupported,
             132 => Ipv4IfAddr,
             134 => TeRouterId,

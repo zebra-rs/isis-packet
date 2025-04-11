@@ -40,9 +40,7 @@ impl Display for IsisSubTlv {
             Ipv6NeighAddr(v) => write!(f, "{}", v),
             AdjSid(v) => write!(f, "{}", v),
             LanAdjSid(v) => write!(f, "{}", v),
-            _ => {
-                write!(f, "    Unknown")
-            }
+            Unknown(v) => write!(f, "    Unknown: ({:?})", v.code),
         }
     }
 }

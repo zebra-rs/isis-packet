@@ -8,6 +8,8 @@ use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
+use crate::IsisTlvSrv6;
+
 use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
@@ -301,6 +303,8 @@ pub enum IsisTlv {
     LspEntries(IsisTlvLspEntries),
     #[nom(Selector = "IsisTlvType::ExtIsReach")]
     ExtIsReach(IsisTlvExtIsReach),
+    #[nom(Selector = "IsisTlvType::Srv6")]
+    Srv6(IsisTlvSrv6),
     #[nom(Selector = "IsisTlvType::ProtSupported")]
     ProtoSupported(IsisTlvProtoSupported),
     #[nom(Selector = "IsisTlvType::Ipv4IfAddr")]
@@ -338,6 +342,7 @@ impl IsisTlv {
             Padding(v) => v.tlv_emit(buf),
             LspEntries(v) => v.tlv_emit(buf),
             ExtIsReach(v) => v.tlv_emit(buf),
+            Srv6(v) => v.tlv_emit(buf),
             ProtoSupported(v) => v.tlv_emit(buf),
             Ipv4IfAddr(v) => v.tlv_emit(buf),
             TeRouterId(v) => v.tlv_emit(buf),
