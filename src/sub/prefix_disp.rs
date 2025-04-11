@@ -12,7 +12,7 @@ impl Display for IsisTlvExtIpReach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         for (pos, entry) in self.entries.iter().enumerate() {
             if pos != 0 {
-                writeln!(f, "")?;
+                writeln!(f)?;
             }
             write!(f, "{}", entry)?;
         }
@@ -38,7 +38,7 @@ impl Display for IsisTlvIpv6Reach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         for (pos, entry) in self.entries.iter().enumerate() {
             if pos != 0 {
-                writeln!(f, "")?;
+                writeln!(f)?;
             }
             write!(f, "{}", entry)?;
         }

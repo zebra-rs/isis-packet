@@ -104,13 +104,22 @@ impl TlvEmitter for IsisSubSrv6EndSid {
     }
 
     fn len(&self) -> u8 {
-        0
+        // Flags(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        1 + 2 + 16 + 1 + len
     }
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags);
         buf.put_u16(self.behavior);
-        // self.sids.emit(buf);
+        buf.put(&self.sid.octets()[..]);
+        // Temporary Sub-Sub TLVs.
+        buf.put_u8(0);
+        let pp = buf.len();
+        for sub2 in &self.sub2s {
+            sub2.emit(buf);
+        }
+        buf[pp] = (buf.len() - pp) as u8;
     }
 }
 
@@ -120,6 +129,23 @@ pub struct IsisSub2SidStructure {
     pub ln_len: u8,
     pub fun_len: u8,
     pub arg_len: u8,
+}
+
+impl TlvEmitter for IsisSub2SidStructure {
+    fn typ(&self) -> u8 {
+        IsisSrv6SidSub2Code::SidStructure.into()
+    }
+
+    fn len(&self) -> u8 {
+        4
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.lb_len);
+        buf.put_u8(self.ln_len);
+        buf.put_u8(self.fun_len);
+        buf.put_u8(self.arg_len);
+    }
 }
 
 #[derive(Debug, NomBE, Clone, Serialize)]
@@ -145,6 +171,26 @@ impl IsisSub2Tlv {
             v.len = cl.len;
         }
         Ok((input, val))
+    }
+
+    pub fn len(&self) -> u8 {
+        use IsisSub2Tlv::*;
+        match self {
+            SidStructure(v) => v.len(),
+            Unknown(v) => v.len(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn emit(&self, buf: &mut BytesMut) {
+        use IsisSub2Tlv::*;
+        match self {
+            SidStructure(v) => v.tlv_emit(buf),
+            Unknown(v) => v.tlv_emit(buf),
+        }
     }
 }
 
@@ -413,7 +459,7 @@ impl IsisTlvIpv6ReachEntry {
             return;
         }
         buf.put_u8(self.sub_len());
-        for sub in self.subs.iter() {
+        for sub in &self.subs {
             sub.emit(buf);
         }
     }
@@ -531,6 +577,32 @@ pub struct Srv6Locator {
     pub subs: Vec<IsisSubTlv>,
 }
 
+impl Srv6Locator {
+    fn len(&self) -> u8 {
+        // Metric(4)+Flags(1)+Algo(1)+Locator(16)+SubLen(1)+Subs
+        let sub_len: u8 = self.subs.iter().map(|sub| sub.len()).sum();
+        4 + 1 + 1 + 16 + 1 + sub_len
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u32(self.metric);
+        buf.put_u8(self.flags);
+        buf.put_u8(self.algo.into());
+        let plen = psize(self.locator.prefix_len());
+        buf.put_u8(plen as u8);
+        if plen != 0 {
+            buf.put(&self.locator.addr().octets()[..plen]);
+        }
+        // Temporary sub TLVs len.
+        buf.put_u8(0);
+        let pp = buf.len();
+        for sub in &self.subs {
+            sub.emit(buf);
+        }
+        buf[pp] = (buf.len() - pp) as u8;
+    }
+}
+
 impl ParseBe<Srv6Locator> for Srv6Locator {
     fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
         let (input, metric) = be_u32(input)?;
@@ -582,10 +654,14 @@ impl TlvEmitter for IsisTlvSrv6 {
     }
 
     fn len(&self) -> u8 {
-        0
+        let len: u8 = self.locators.iter().map(|locator| locator.len()).sum();
+        len + 2
     }
 
-    fn emit(&self, _buf: &mut BytesMut) {
-        //
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u16(self.flags.into());
+        for locator in &self.locators {
+            locator.emit(buf);
+        }
     }
 }

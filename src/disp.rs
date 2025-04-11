@@ -265,7 +265,7 @@ impl Display for IsisTlvSrv6 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         for (pos, locator) in self.locators.iter().enumerate() {
             if pos != 0 {
-                writeln!(f, "")?;
+                writeln!(f)?;
             }
             write!(
                 f,
