@@ -1,6 +1,8 @@
 use std::fmt::{Display, Formatter, Result};
 
-use super::prefix::{IsisSubSrv6EndSid, IsisSubTlv, PrefixSidFlags};
+use super::prefix::{
+    IsisSub2SidStructure, IsisSub2Tlv, IsisSubSrv6EndSid, IsisSubTlv, PrefixSidFlags,
+};
 use super::{
     IsisSubPrefixSid, IsisTlvExtIpReach, IsisTlvExtIpReachEntry, IsisTlvIpv6Reach,
     IsisTlvIpv6ReachEntry,
@@ -9,11 +11,10 @@ use super::{
 impl Display for IsisTlvExtIpReach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         for (pos, entry) in self.entries.iter().enumerate() {
-            if pos == 0 {
-                write!(f, "{}", entry)?;
-            } else {
-                write!(f, "\n{}", entry)?;
+            if pos != 0 {
+                writeln!(f, "")?;
             }
+            write!(f, "{}", entry)?;
         }
         Ok(())
     }
@@ -24,13 +25,9 @@ impl Display for IsisTlvExtIpReachEntry {
         write!(
             f,
             r#"  Extended IP Reachability: {} (Metric: {})"#,
-            self.prefix,
-            self.metric,
-            // self.flags.distribution(),
-            // self.flags.sub_tlv(),
-            // self.flags.prefixlen(),
+            self.prefix, self.metric,
         )?;
-        for sub in self.subs.iter() {
+        for sub in &self.subs {
             write!(f, "\n{}", sub)?;
         }
         Ok(())
@@ -40,11 +37,10 @@ impl Display for IsisTlvExtIpReachEntry {
 impl Display for IsisTlvIpv6Reach {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         for (pos, entry) in self.entries.iter().enumerate() {
-            if pos == 0 {
-                write!(f, "{}", entry)?;
-            } else {
-                write!(f, "\n{}", entry)?;
+            if pos != 0 {
+                writeln!(f, "")?;
             }
+            write!(f, "{}", entry)?;
         }
         Ok(())
     }
@@ -55,11 +51,7 @@ impl Display for IsisTlvIpv6ReachEntry {
         write!(
             f,
             r#"  IPv6 Reachability: {} (Metric: {})"#,
-            self.prefix,
-            self.metric,
-            // self.flags.dist_up(),
-            // self.flags.dist_internal(),
-            // self.flags.sub_tlv(),
+            self.prefix, self.metric,
         )?;
         for sub in self.subs.iter() {
             write!(f, "\n{}", sub)?;
@@ -108,8 +100,32 @@ impl Display for IsisSubSrv6EndSid {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            r#"   SID: {:?}, Behavior: {}, Flags: {}"#,
-            self.sids, self.behavior, self.flags,
+            r#"   End SID: {}, Behavior: {}, Flags: {}"#,
+            self.sid, self.behavior, self.flags,
+        )?;
+        for sub2 in &self.sub2s {
+            write!(f, "\n    {}", sub2)?;
+        }
+        Ok(())
+    }
+}
+
+impl Display for IsisSub2Tlv {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        use IsisSub2Tlv::*;
+        match self {
+            SidStructure(v) => write!(f, "{}", v),
+            Unknown(v) => write!(f, "Unknown: Code {}, Length {}", v.code, v.len),
+        }
+    }
+}
+
+impl Display for IsisSub2SidStructure {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "LB Len: {}, LN Len: {}, Func Len: {}, Arg Len: {}",
+            self.lb_len, self.ln_len, self.fun_len, self.arg_len
         )
     }
 }

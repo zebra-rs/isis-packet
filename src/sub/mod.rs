@@ -1,7 +1,7 @@
 use nom_derive::*;
 
 #[derive(NomBE)]
-pub struct IsisSubCodeLen {
+pub struct IsisCodeLen {
     pub code: u8,
     pub len: u8,
 }
@@ -21,7 +21,7 @@ pub use prefix::{
     IsisTlvIpv6ReachEntry, IsisTlvMtIpReach, IsisTlvMtIpv6Reach, IsisTlvSrv6, PrefixSidFlags,
 };
 pub mod prefix_code;
-pub use prefix_code::IsisPrefixCode;
+pub use prefix_code::{IsisPrefixCode, IsisSrv6SidSub2Code};
 pub mod prefix_disp;
 
 pub mod cap;

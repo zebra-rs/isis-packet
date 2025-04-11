@@ -10,7 +10,7 @@ use serde::Serialize;
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use crate::{Algo, IsisTlv, IsisTlvType};
 
-use super::{IsisCapCode, IsisSubCodeLen, IsisSubTlvUnknown};
+use super::{IsisCapCode, IsisCodeLen, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -32,7 +32,7 @@ pub enum IsisSubTlv {
 
 impl IsisSubTlv {
     pub fn parse_subs(input: &[u8]) -> IResult<&[u8], Self> {
-        let (input, cl) = IsisSubCodeLen::parse_be(input)?;
+        let (input, cl) = IsisCodeLen::parse_be(input)?;
         if input.len() < cl.len as usize {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }

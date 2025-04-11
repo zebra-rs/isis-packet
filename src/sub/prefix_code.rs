@@ -40,3 +40,31 @@ impl IsisPrefixCode {
         Ok((input, isis_type))
     }
 }
+
+#[repr(u8)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+pub enum IsisSrv6SidSub2Code {
+    #[default]
+    SidStructure = 1,
+    Unknown(u8),
+}
+
+impl From<IsisSrv6SidSub2Code> for u8 {
+    fn from(typ: IsisSrv6SidSub2Code) -> Self {
+        use IsisSrv6SidSub2Code::*;
+        match typ {
+            SidStructure => 1,
+            Unknown(v) => v,
+        }
+    }
+}
+
+impl From<u8> for IsisSrv6SidSub2Code {
+    fn from(typ: u8) -> Self {
+        use IsisSrv6SidSub2Code::*;
+        match typ {
+            1 => SidStructure,
+            v => Unknown(v),
+        }
+    }
+}

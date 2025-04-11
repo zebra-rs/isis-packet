@@ -8,12 +8,10 @@ use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
-use crate::IsisTlvSrv6;
-
 use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
-    IsisTlvRouterCap, IsisTlvType, IsisType,
+    IsisTlvRouterCap, IsisTlvSrv6, IsisTlvType, IsisType,
 };
 
 // IS-IS discriminator.

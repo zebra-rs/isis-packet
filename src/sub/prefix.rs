@@ -12,7 +12,7 @@ use serde::Serialize;
 use crate::util::{many0, ParseBe, TlvEmitter};
 use crate::{Algo, IsisTlvType, SidLabelValue};
 
-use super::{IsisPrefixCode, IsisSubCodeLen, IsisSubTlvUnknown};
+use super::{IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -73,21 +73,28 @@ impl TlvEmitter for IsisSubPrefixSid {
 pub struct IsisSubSrv6EndSid {
     pub flags: u8,
     pub behavior: u16,
-    pub sids: Vec<Ipv6Addr>,
+    pub sid: Ipv6Addr,
+    pub sub2s: Vec<IsisSub2Tlv>,
 }
 
 impl ParseBe<IsisSubSrv6EndSid> for IsisSubSrv6EndSid {
     fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
         let (input, flags) = be_u8(input)?;
         let (input, behavior) = be_u16(input)?;
-        Ok((
-            input,
-            Self {
-                flags,
-                behavior,
-                sids: vec![],
-            },
-        ))
+        let (input, sid) = Ipv6Addr::parse_be(input)?;
+        let (input, sub2_len) = be_u8(input)?;
+        let mut sub = Self {
+            flags,
+            behavior,
+            sid,
+            sub2s: vec![],
+        };
+        if sub2_len == 0 {
+            return Ok((input, sub));
+        }
+        let (_, sub2s) = many0(IsisSub2Tlv::parse_subs)(input)?;
+        sub.sub2s = sub2s;
+        Ok((input, sub))
     }
 }
 
@@ -107,9 +114,43 @@ impl TlvEmitter for IsisSubSrv6EndSid {
     }
 }
 
+#[derive(Debug, NomBE, Clone, Serialize)]
+pub struct IsisSub2SidStructure {
+    pub lb_len: u8,
+    pub ln_len: u8,
+    pub fun_len: u8,
+    pub arg_len: u8,
+}
+
+#[derive(Debug, NomBE, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+#[nom(Selector = "IsisSrv6SidSub2Code")]
+pub enum IsisSub2Tlv {
+    #[nom(Selector = "IsisSrv6SidSub2Code::SidStructure")]
+    SidStructure(IsisSub2SidStructure),
+    #[nom(Selector = "_")]
+    Unknown(IsisSubTlvUnknown),
+}
+
+impl IsisSub2Tlv {
+    pub fn parse_subs(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, cl) = IsisCodeLen::parse_be(input)?;
+        if input.len() < cl.len as usize {
+            return Err(Err::Incomplete(Needed::new(cl.len as usize)));
+        }
+        let (sub, input) = input.split_at(cl.len as usize);
+        let (_, mut val) = Self::parse_be(sub, cl.code.into())?;
+        if let IsisSub2Tlv::Unknown(ref mut v) = val {
+            v.code = cl.code;
+            v.len = cl.len;
+        }
+        Ok((input, val))
+    }
+}
+
 impl IsisSubTlv {
     pub fn parse_subs(input: &[u8]) -> IResult<&[u8], Self> {
-        let (input, cl) = IsisSubCodeLen::parse_be(input)?;
+        let (input, cl) = IsisCodeLen::parse_be(input)?;
         if input.len() < cl.len as usize {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }

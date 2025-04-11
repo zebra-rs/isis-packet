@@ -13,7 +13,7 @@ use crate::{
     IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, SidLabelValue, IPV4_ADDR_LEN, IPV6_ADDR_LEN,
 };
 
-use super::{IsisNeighCode, IsisSubCodeLen, IsisSubTlvUnknown};
+use super::{IsisCodeLen, IsisNeighCode, IsisSubTlvUnknown};
 
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct IsisTlvExtIsReach {
@@ -112,7 +112,7 @@ pub enum IsisSubTlv {
 
 impl IsisSubTlv {
     pub fn parse_subs(input: &[u8]) -> IResult<&[u8], Self> {
-        let (input, cl) = IsisSubCodeLen::parse_be(input)?;
+        let (input, cl) = IsisCodeLen::parse_be(input)?;
         if input.len() < cl.len as usize {
             return Err(Err::Incomplete(Needed::new(cl.len as usize)));
         }
