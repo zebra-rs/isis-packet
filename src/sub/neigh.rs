@@ -14,7 +14,7 @@ use crate::{
     IPV6_ADDR_LEN,
 };
 
-use super::{IsisCodeLen, IsisNeighCode, IsisSub2Tlv, IsisSubTlvUnknown};
+use super::{Behavior, IsisCodeLen, IsisNeighCode, IsisSub2Tlv, IsisSubTlvUnknown};
 
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct IsisTlvExtIsReach {
@@ -314,7 +314,7 @@ pub struct IsisSubSrv6EndXSid {
     pub flags: u8,
     pub algo: Algo,
     pub weight: u8,
-    pub behavior: u16,
+    pub behavior: Behavior,
     pub sid: Ipv6Addr,
     pub sub2s: Vec<IsisSub2Tlv>,
 }
@@ -331,7 +331,7 @@ impl ParseBe<IsisSubSrv6EndXSid> for IsisSubSrv6EndXSid {
             flags,
             algo: algo.into(),
             weight,
-            behavior,
+            behavior: behavior.into(),
             sid,
             sub2s: vec![],
         };
@@ -359,7 +359,7 @@ impl TlvEmitter for IsisSubSrv6EndXSid {
         buf.put_u8(self.flags);
         buf.put_u8(self.algo.into());
         buf.put_u8(self.weight);
-        buf.put_u16(self.behavior);
+        buf.put_u16(self.behavior.into());
         buf.put(&self.sid.octets()[..]);
         // Temporary Sub-Sub TLVs.
         buf.put_u8(0);
@@ -377,7 +377,7 @@ pub struct IsisSubSrv6LanEndXSid {
     pub flags: u8,
     pub algo: Algo,
     pub weight: u8,
-    pub behavior: u16,
+    pub behavior: Behavior,
     pub sid: Ipv6Addr,
     pub sub2s: Vec<IsisSub2Tlv>,
 }
@@ -396,7 +396,7 @@ impl ParseBe<IsisSubSrv6LanEndXSid> for IsisSubSrv6LanEndXSid {
             flags,
             algo: algo.into(),
             weight,
-            behavior,
+            behavior: behavior.into(),
             sid,
             sub2s: vec![],
         };
@@ -425,7 +425,7 @@ impl TlvEmitter for IsisSubSrv6LanEndXSid {
         buf.put_u8(self.flags);
         buf.put_u8(self.algo.into());
         buf.put_u8(self.weight);
-        buf.put_u16(self.behavior);
+        buf.put_u16(self.behavior.into());
         buf.put(&self.sid.octets()[..]);
         // Temporary Sub-Sub TLVs.
         buf.put_u8(0);

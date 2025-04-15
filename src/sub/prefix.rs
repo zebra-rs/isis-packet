@@ -12,7 +12,7 @@ use serde::Serialize;
 use crate::util::{many0, ParseBe, TlvEmitter};
 use crate::{Algo, IsisTlvType, SidLabelValue};
 
-use super::{IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};
+use super::{Behavior, IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -72,7 +72,7 @@ impl TlvEmitter for IsisSubPrefixSid {
 #[derive(Debug, Clone, Serialize)]
 pub struct IsisSubSrv6EndSid {
     pub flags: u8,
-    pub behavior: u16,
+    pub behavior: Behavior,
     pub sid: Ipv6Addr,
     pub sub2s: Vec<IsisSub2Tlv>,
 }
@@ -85,7 +85,7 @@ impl ParseBe<IsisSubSrv6EndSid> for IsisSubSrv6EndSid {
         let (input, sub2_len) = be_u8(input)?;
         let mut sub = Self {
             flags,
-            behavior,
+            behavior: behavior.into(),
             sid,
             sub2s: vec![],
         };
@@ -111,7 +111,7 @@ impl TlvEmitter for IsisSubSrv6EndSid {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.flags);
-        buf.put_u16(self.behavior);
+        buf.put_u16(self.behavior.into());
         buf.put(&self.sid.octets()[..]);
         // Temporary Sub-Sub TLVs.
         buf.put_u8(0);
