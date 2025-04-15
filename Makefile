@@ -18,3 +18,6 @@ l2:
 
 json:
 	@cargo test --quiet json_test -- --nocapture
+
+sid:
+	@cargo test --quiet sid -- --nocapture

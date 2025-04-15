@@ -12,6 +12,8 @@ pub enum IsisNeighCode {
     Ipv6NeighAddr = 13,
     AdjSid = 31,
     LanAdjSid = 32,
+    Srv6EndXSid = 43,
+    Srv6LanEndXSid = 44,
     Unknown(u8),
 }
 
@@ -25,6 +27,8 @@ impl From<IsisNeighCode> for u8 {
             Ipv6NeighAddr => 13,
             AdjSid => 31,
             LanAdjSid => 32,
+            Srv6EndXSid => 43,
+            Srv6LanEndXSid => 44,
             Unknown(v) => v,
         }
     }
@@ -40,6 +44,8 @@ impl From<u8> for IsisNeighCode {
             13 => Ipv6NeighAddr,
             31 => AdjSid,
             32 => LanAdjSid,
+            43 => Srv6EndXSid,
+            44 => Srv6LanEndXSid,
             v => Unknown(v),
         }
     }

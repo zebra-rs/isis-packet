@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter, Result};
 use super::neigh::{IsisSubAdjSid, IsisSubTlv};
 use super::{
     AdjSidFlags, IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
-    IsisSubLanAdjSid, IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
+    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
 };
 
 impl Display for IsisTlvExtIsReach {
@@ -40,6 +40,8 @@ impl Display for IsisSubTlv {
             Ipv6NeighAddr(v) => write!(f, "{}", v),
             AdjSid(v) => write!(f, "{}", v),
             LanAdjSid(v) => write!(f, "{}", v),
+            Srv6EndXSid(v) => write!(f, "{}", v),
+            Srv6LanEndXSid(v) => write!(f, "{}", v),
             Unknown(v) => write!(f, "    Unknown: ({:?})", v.code),
         }
     }
@@ -103,5 +105,11 @@ impl Display for IsisSubLanAdjSid {
         )
         .unwrap();
         write!(f, "     Flags: {}", self.flags)
+    }
+}
+
+impl Display for IsisSubSrv6EndXSid {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "    X")
     }
 }

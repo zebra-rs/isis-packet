@@ -3,17 +3,18 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u24, be_u8};
+use nom::number::complete::{be_u16, be_u24, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use crate::{
-    IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, SidLabelValue, IPV4_ADDR_LEN, IPV6_ADDR_LEN,
+    Algo, IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, SidLabelValue, IPV4_ADDR_LEN,
+    IPV6_ADDR_LEN,
 };
 
-use super::{IsisCodeLen, IsisNeighCode, IsisSubTlvUnknown};
+use super::{IsisCodeLen, IsisNeighCode, IsisSub2Tlv, IsisSubTlvUnknown};
 
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct IsisTlvExtIsReach {
@@ -106,6 +107,10 @@ pub enum IsisSubTlv {
     AdjSid(IsisSubAdjSid),
     #[nom(Selector = "IsisNeighCode::LanAdjSid")]
     LanAdjSid(IsisSubLanAdjSid),
+    #[nom(Selector = "IsisNeighCode::Srv6EndXSid")]
+    Srv6EndXSid(IsisSubSrv6EndXSid),
+    #[nom(Selector = "IsisNeighCode::Srv6LanEndXSid")]
+    Srv6LanEndXSid(IsisSubSrv6EndXSid),
     #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
 }
@@ -134,6 +139,8 @@ impl IsisSubTlv {
             Ipv6NeighAddr(v) => v.len(),
             AdjSid(v) => v.len(),
             LanAdjSid(v) => v.len(),
+            Srv6EndXSid(v) => v.len(),
+            Srv6LanEndXSid(v) => v.len(),
             Unknown(v) => v.len,
         }
     }
@@ -151,6 +158,8 @@ impl IsisSubTlv {
             Ipv6NeighAddr(v) => v.tlv_emit(buf),
             AdjSid(v) => v.tlv_emit(buf),
             LanAdjSid(v) => v.tlv_emit(buf),
+            Srv6EndXSid(v) => v.tlv_emit(buf),
+            Srv6LanEndXSid(v) => v.tlv_emit(buf),
             Unknown(v) => v.tlv_emit(buf),
         }
     }
@@ -297,5 +306,67 @@ impl TlvEmitter for IsisSubLanAdjSid {
         buf.put_u8(self.weight);
         buf.put(&self.system_id.id[..]);
         self.sid.emit(buf);
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct IsisSubSrv6EndXSid {
+    pub flags: u8,
+    pub algo: Algo,
+    pub weight: u8,
+    pub behavior: u16,
+    pub sid: Ipv6Addr,
+    pub sub2s: Vec<IsisSub2Tlv>,
+}
+
+impl ParseBe<IsisSubSrv6EndXSid> for IsisSubSrv6EndXSid {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, flags) = be_u8(input)?;
+        let (input, algo) = be_u8(input)?;
+        let (input, weight) = be_u8(input)?;
+        let (input, behavior) = be_u16(input)?;
+        let (input, sid) = Ipv6Addr::parse_be(input)?;
+        let (input, sub2_len) = be_u8(input)?;
+        let mut sub = Self {
+            flags,
+            algo: algo.into(),
+            weight,
+            behavior,
+            sid,
+            sub2s: vec![],
+        };
+        if sub2_len == 0 {
+            return Ok((input, sub));
+        }
+        let (_, sub2s) = many0(IsisSub2Tlv::parse_subs)(input)?;
+        sub.sub2s = sub2s;
+        Ok((input, sub))
+    }
+}
+
+impl TlvEmitter for IsisSubSrv6EndXSid {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::Srv6EndXSid.into()
+    }
+
+    fn len(&self) -> u8 {
+        // Flags(1)+Algo(1)+Weight(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        1 + 1 + 1 + 2 + 16 + 1 + len
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.flags);
+        buf.put_u8(self.algo.into());
+        buf.put_u8(self.weight);
+        buf.put_u16(self.behavior);
+        buf.put(&self.sid.octets()[..]);
+        // Temporary Sub-Sub TLVs.
+        buf.put_u8(0);
+        let pp = buf.len();
+        for sub2 in &self.sub2s {
+            sub2.emit(buf);
+        }
+        buf[pp] = (buf.len() - pp) as u8;
     }
 }
