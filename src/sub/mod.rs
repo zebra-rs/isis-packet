@@ -6,11 +6,20 @@ pub struct IsisCodeLen {
     pub len: u8,
 }
 
+pub mod cap;
+pub use cap::{
+    IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
+    IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags,
+};
+pub mod cap_code;
+pub use cap_code::IsisCapCode;
+pub mod cap_disp;
+
 pub mod neigh;
 pub use neigh::{
     AdjSidFlags, IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
-    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisSubSrv6LanEndXSid, IsisTlvExtIsReach,
-    IsisTlvExtIsReachEntry,
+    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisSubSrv6LanEndXSid, IsisSubWideMetric,
+    IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
 };
 pub mod neigh_code;
 pub use neigh_code::IsisNeighCode;
@@ -24,15 +33,6 @@ pub use prefix::{
 pub mod prefix_code;
 pub use prefix_code::{IsisPrefixCode, IsisSrv6SidSub2Code};
 pub mod prefix_disp;
-
-pub mod cap;
-pub use cap::{
-    IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
-    IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags,
-};
-pub mod cap_code;
-pub use cap_code::IsisCapCode;
-pub mod cap_disp;
 
 pub mod srv6;
 pub use srv6::Behavior;

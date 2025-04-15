@@ -3,8 +3,8 @@ use std::fmt::{Display, Formatter, Result};
 use super::neigh::{IsisSubAdjSid, IsisSubTlv};
 use super::{
     AdjSidFlags, IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
-    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisSubSrv6LanEndXSid, IsisTlvExtIsReach,
-    IsisTlvExtIsReachEntry,
+    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisSubSrv6LanEndXSid, IsisSubWideMetric,
+    IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
 };
 
 impl Display for IsisTlvExtIsReach {
@@ -39,6 +39,7 @@ impl Display for IsisSubTlv {
             Ipv4NeighAddr(v) => write!(f, "{}", v),
             Ipv6IfAddr(v) => write!(f, "{}", v),
             Ipv6NeighAddr(v) => write!(f, "{}", v),
+            WideMetric(v) => write!(f, "{}", v),
             AdjSid(v) => write!(f, "{}", v),
             LanAdjSid(v) => write!(f, "{}", v),
             Srv6EndXSid(v) => write!(f, "{}", v),
@@ -69,6 +70,12 @@ impl Display for IsisSubIpv6IfAddr {
 impl Display for IsisSubIpv6NeighAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "    IPv6 Neighbor Address: {}", self.addr)
+    }
+}
+
+impl Display for IsisSubWideMetric {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "    Wide Metric: {}", self.metric)
     }
 }
 

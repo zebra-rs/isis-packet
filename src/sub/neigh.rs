@@ -103,6 +103,8 @@ pub enum IsisSubTlv {
     Ipv6IfAddr(IsisSubIpv6IfAddr),
     #[nom(Selector = "IsisNeighCode::Ipv6NeighAddr")]
     Ipv6NeighAddr(IsisSubIpv6NeighAddr),
+    #[nom(Selector = "IsisNeighCode::WideMetric")]
+    WideMetric(IsisSubWideMetric),
     #[nom(Selector = "IsisNeighCode::AdjSid")]
     AdjSid(IsisSubAdjSid),
     #[nom(Selector = "IsisNeighCode::LanAdjSid")]
@@ -137,6 +139,7 @@ impl IsisSubTlv {
             Ipv4NeighAddr(v) => v.len(),
             Ipv6IfAddr(v) => v.len(),
             Ipv6NeighAddr(v) => v.len(),
+            WideMetric(v) => v.len(),
             AdjSid(v) => v.len(),
             LanAdjSid(v) => v.len(),
             Srv6EndXSid(v) => v.len(),
@@ -156,6 +159,7 @@ impl IsisSubTlv {
             Ipv4NeighAddr(v) => v.tlv_emit(buf),
             Ipv6IfAddr(v) => v.tlv_emit(buf),
             Ipv6NeighAddr(v) => v.tlv_emit(buf),
+            WideMetric(v) => v.tlv_emit(buf),
             AdjSid(v) => v.tlv_emit(buf),
             LanAdjSid(v) => v.tlv_emit(buf),
             Srv6EndXSid(v) => v.tlv_emit(buf),
@@ -238,6 +242,26 @@ impl TlvEmitter for IsisSubIpv6NeighAddr {
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put(&self.addr.octets()[..]);
+    }
+}
+
+#[derive(Debug, NomBE, Clone, Serialize)]
+pub struct IsisSubWideMetric {
+    #[nom(Parse = "be_u24")]
+    pub metric: u32,
+}
+
+impl TlvEmitter for IsisSubWideMetric {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::WideMetric.into()
+    }
+
+    fn len(&self) -> u8 {
+        3
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&u32_u8_3(self.metric)[..]);
     }
 }
 
