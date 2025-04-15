@@ -9,7 +9,8 @@ pub struct IsisCodeLen {
 pub mod neigh;
 pub use neigh::{
     AdjSidFlags, IsisSubIpv4IfAddr, IsisSubIpv4NeighAddr, IsisSubIpv6IfAddr, IsisSubIpv6NeighAddr,
-    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisTlvExtIsReach, IsisTlvExtIsReachEntry,
+    IsisSubLanAdjSid, IsisSubSrv6EndXSid, IsisSubSrv6LanEndXSid, IsisTlvExtIsReach,
+    IsisTlvExtIsReachEntry,
 };
 pub mod neigh_code;
 pub use neigh_code::IsisNeighCode;

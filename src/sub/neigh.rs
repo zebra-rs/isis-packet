@@ -110,7 +110,7 @@ pub enum IsisSubTlv {
     #[nom(Selector = "IsisNeighCode::Srv6EndXSid")]
     Srv6EndXSid(IsisSubSrv6EndXSid),
     #[nom(Selector = "IsisNeighCode::Srv6LanEndXSid")]
-    Srv6LanEndXSid(IsisSubSrv6EndXSid),
+    Srv6LanEndXSid(IsisSubSrv6LanEndXSid),
     #[nom(Selector = "_")]
     Unknown(IsisSubTlvUnknown),
 }
@@ -356,6 +356,72 @@ impl TlvEmitter for IsisSubSrv6EndXSid {
     }
 
     fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.flags);
+        buf.put_u8(self.algo.into());
+        buf.put_u8(self.weight);
+        buf.put_u16(self.behavior);
+        buf.put(&self.sid.octets()[..]);
+        // Temporary Sub-Sub TLVs.
+        buf.put_u8(0);
+        let pp = buf.len();
+        for sub2 in &self.sub2s {
+            sub2.emit(buf);
+        }
+        buf[pp] = (buf.len() - pp) as u8;
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct IsisSubSrv6LanEndXSid {
+    pub system_id: IsisSysId,
+    pub flags: u8,
+    pub algo: Algo,
+    pub weight: u8,
+    pub behavior: u16,
+    pub sid: Ipv6Addr,
+    pub sub2s: Vec<IsisSub2Tlv>,
+}
+
+impl ParseBe<IsisSubSrv6LanEndXSid> for IsisSubSrv6LanEndXSid {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, system_id) = IsisSysId::parse_be(input)?;
+        let (input, flags) = be_u8(input)?;
+        let (input, algo) = be_u8(input)?;
+        let (input, weight) = be_u8(input)?;
+        let (input, behavior) = be_u16(input)?;
+        let (input, sid) = Ipv6Addr::parse_be(input)?;
+        let (input, sub2_len) = be_u8(input)?;
+        let mut sub = Self {
+            system_id,
+            flags,
+            algo: algo.into(),
+            weight,
+            behavior,
+            sid,
+            sub2s: vec![],
+        };
+        if sub2_len == 0 {
+            return Ok((input, sub));
+        }
+        let (_, sub2s) = many0(IsisSub2Tlv::parse_subs)(input)?;
+        sub.sub2s = sub2s;
+        Ok((input, sub))
+    }
+}
+
+impl TlvEmitter for IsisSubSrv6LanEndXSid {
+    fn typ(&self) -> u8 {
+        IsisNeighCode::Srv6LanEndXSid.into()
+    }
+
+    fn len(&self) -> u8 {
+        // SystemID(6)+Flags(1)+Algo(1)+Weight(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        6 + 1 + 1 + 1 + 2 + 16 + 1 + len
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put(&self.system_id.id[..]);
         buf.put_u8(self.flags);
         buf.put_u8(self.algo.into());
         buf.put_u8(self.weight);
