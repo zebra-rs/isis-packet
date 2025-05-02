@@ -251,7 +251,7 @@ impl IsisHello {
 pub struct IsisCsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
-    pub source_id_curcuit: u8,
+    pub source_id_circuit: u8,
     pub start: IsisLspId,
     pub end: IsisLspId,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
@@ -263,7 +263,7 @@ impl IsisCsnp {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
         buf.put(&self.source_id.id[..]);
-        buf.put_u8(self.source_id_curcuit);
+        buf.put_u8(self.source_id_circuit);
         buf.put(&self.start.id[..]);
         buf.put(&self.end.id[..]);
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));

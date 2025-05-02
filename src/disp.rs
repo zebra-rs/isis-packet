@@ -53,15 +53,6 @@ impl Display for IsisPdu {
 
 impl Display for IsisLsp {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        //        write!(
-        //            f,
-        //            r#" PDU length: {}
-        // Lifetime: {}
-        // LSP ID: {}
-        // Sequence number: 0x{:x}
-        // Checksum: 0x{:x}"#,
-        //            self.pdu_len, self.lifetime, self.lsp_id, self.seq_number, self.checksum
-        //        )?;
         for tlv in self.tlvs.iter() {
             write!(f, "\n{}", tlv)?;
         }
@@ -99,10 +90,10 @@ impl Display for IsisCsnp {
             f,
             r#" PDU length: {}
  Source ID: {:?}
- Source ID Curcuit: {}
+ Source ID Circuit: {}
  Start: {:?}
  End: {:?}"#,
-            self.pdu_len, self.source_id, self.source_id_curcuit, self.start, self.end
+            self.pdu_len, self.source_id, self.source_id_circuit, self.start, self.end
         )?;
         for tlv in self.tlvs.iter() {
             write!(f, "{}", tlv)?;
