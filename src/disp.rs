@@ -81,7 +81,7 @@ impl Display for IsisHello {
  LAN ID {}"#,
             self.circuit_type,
             self.source_id,
-            self.hold_timer,
+            self.hold_time,
             self.pdu_len,
             self.priority,
             self.lan_id
@@ -247,7 +247,7 @@ impl Display for IsisLspEntry {
   Sequence number: 0x{:x}
   Checksum: 0x{:x}
   LSP ID {:?}"#,
-            self.lifetime, self.seq_number, self.checksum, self.lsp_id,
+            self.hold_time, self.seq_number, self.checksum, self.lsp_id,
         )
     }
 }

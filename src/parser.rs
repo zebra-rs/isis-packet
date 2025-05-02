@@ -188,7 +188,7 @@ impl IsisLspId {
 #[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisLsp {
     pub pdu_len: u16,
-    pub lifetime: u16,
+    pub hold_time: u16,
     pub lsp_id: IsisLspId,
     pub seq_number: u32,
     pub checksum: u16,
@@ -203,7 +203,7 @@ impl IsisLsp {
     pub fn emit(&self, buf: &mut BytesMut) {
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
-        buf.put_u16(self.lifetime);
+        buf.put_u16(self.hold_time);
         buf.put(&self.lsp_id.id[..]);
         buf.put_u32(self.seq_number);
         buf.put_u16(self.checksum);
@@ -212,13 +212,19 @@ impl IsisLsp {
         let pdu_len: u16 = buf.len() as u16;
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
     }
+
+    pub fn clone_with_seqno_inc(&self) -> Self {
+        let mut lsp = self.clone();
+        lsp.seq_number += 1;
+        lsp
+    }
 }
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisHello {
     pub circuit_type: u8,
     pub source_id: IsisSysId,
-    pub hold_timer: u16,
+    pub hold_time: u16,
     pub pdu_len: u16,
     pub priority: u8,
     pub lan_id: IsisNeighborId,
@@ -230,7 +236,7 @@ impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
         buf.put_u8(self.circuit_type);
         buf.put(&self.source_id.id[..]);
-        buf.put_u16(self.hold_timer);
+        buf.put_u16(self.hold_time);
         let pp = buf.len();
         buf.put_u16(self.pdu_len);
         buf.put_u8(self.priority);
@@ -447,7 +453,7 @@ impl TlvEmitter for IsisTlvPadding {
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisLspEntry {
-    pub lifetime: u16,
+    pub hold_time: u16,
     pub lsp_id: IsisLspId,
     pub seq_number: u32,
     pub checksum: u16,
@@ -455,7 +461,7 @@ pub struct IsisLspEntry {
 
 impl IsisLspEntry {
     fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u16(self.lifetime);
+        buf.put_u16(self.hold_time);
         buf.put(&self.lsp_id.id[..]);
         buf.put_u32(self.seq_number);
         buf.put_u16(self.checksum);
