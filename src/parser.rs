@@ -228,12 +228,13 @@ impl IsisLsp {
     }
 
     pub fn hostname_tlv(&self) -> Option<&IsisTlvHostname> {
-        for tlv in &self.tlvs {
+        self.tlvs.iter().find_map(|tlv| {
             if let IsisTlv::Hostname(tlv) = tlv {
-                return Some(&tlv);
+                Some(tlv)
+            } else {
+                None
             }
-        }
-        None
+        })
     }
 }
 
@@ -295,6 +296,16 @@ impl IsisHello {
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
+    }
+
+    pub fn proto_tlv(&self) -> Option<&IsisTlvProtoSupported> {
+        self.tlvs.iter().find_map(|tlv| {
+            if let IsisTlv::ProtoSupported(tlv) = tlv {
+                Some(tlv)
+            } else {
+                None
+            }
+        })
     }
 }
 
