@@ -139,7 +139,7 @@ impl IsisNeighborId {
     }
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct IsisLspId {
     pub id: [u8; 8],
 }
@@ -180,8 +180,16 @@ impl IsisLspId {
         self.id[6]
     }
 
+    pub fn is_pseudo(&self) -> bool {
+        self.id[6] != 0
+    }
+
     pub fn fragment_id(&self) -> u8 {
         self.id[7]
+    }
+
+    pub fn is_fragment(&self) -> bool {
+        self.id[7] != 0
     }
 }
 
@@ -218,11 +226,54 @@ impl IsisLsp {
         lsp.seq_number += 1;
         lsp
     }
+
+    pub fn hostname_tlv(&self) -> Option<&IsisTlvHostname> {
+        for tlv in &self.tlvs {
+            if let IsisTlv::Hostname(tlv) = tlv {
+                return Some(&tlv);
+            }
+        }
+        None
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum IsLevel {
+    L1,
+    L2,
+    L1L2,
+}
+
+impl From<IsLevel> for u8 {
+    fn from(level: IsLevel) -> Self {
+        match level {
+            IsLevel::L1 => 0x01,
+            IsLevel::L2 => 0x02,
+            IsLevel::L1L2 => 0x03,
+        }
+    }
+}
+
+impl From<u8> for IsLevel {
+    fn from(level: u8) -> Self {
+        match level {
+            0x01 => IsLevel::L1,
+            0x02 => IsLevel::L2,
+            _ => IsLevel::L1L2,
+        }
+    }
+}
+
+impl ParseBe<IsLevel> for IsLevel {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, level) = be_u8(input)?;
+        Ok((input, level.into()))
+    }
 }
 
 #[derive(Debug, NomBE, Clone, Serialize)]
 pub struct IsisHello {
-    pub circuit_type: u8,
+    pub circuit_type: IsLevel,
     pub source_id: IsisSysId,
     pub hold_time: u16,
     pub pdu_len: u16,
@@ -234,7 +285,7 @@ pub struct IsisHello {
 
 impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.circuit_type);
+        buf.put_u8(self.circuit_type.clone().into());
         buf.put(&self.source_id.id[..]);
         buf.put_u16(self.hold_time);
         let pp = buf.len();

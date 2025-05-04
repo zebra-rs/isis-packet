@@ -1,8 +1,8 @@
 use std::fmt::{Display, Formatter, Result};
 
 use crate::{
-    Algo, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId, IsisPacket,
-    IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
+    Algo, IsLevel, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId,
+    IsisPacket, IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
     IsisTlvIpv4IfAddr, IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId,
     IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvSrv6,
     IsisTlvTeRouterId, SidLabelValue,
@@ -57,6 +57,40 @@ impl Display for IsisLsp {
             write!(f, "\n{}", tlv)?;
         }
         Ok(())
+    }
+}
+
+impl Display for IsLevel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            IsLevel::L1 => write!(f, "L1"),
+            IsLevel::L2 => write!(f, "L2"),
+            IsLevel::L1L2 => write!(f, "L1L2"),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ParseIsTypeError;
+
+impl Display for ParseIsTypeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "invalid input for IsType")
+    }
+}
+
+use std::str::FromStr;
+
+impl FromStr for IsLevel {
+    type Err = ParseIsTypeError;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "level-1" => Ok(IsLevel::L1),
+            "level-2-only" => Ok(IsLevel::L2),
+            "level-1-2" => Ok(IsLevel::L1L2),
+            _ => Err(ParseIsTypeError),
+        }
     }
 }
 
