@@ -238,11 +238,30 @@ impl IsisLsp {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Default, Clone, Copy, Serialize, PartialEq)]
 pub enum IsLevel {
     L1,
     L2,
+    #[default]
     L1L2,
+}
+
+impl IsLevel {
+    pub fn has_l1(&self) -> bool {
+        use IsLevel::*;
+        match self {
+            L1 | L1L2 => true,
+            L2 => false,
+        }
+    }
+
+    pub fn has_l2(&self) -> bool {
+        use IsLevel::*;
+        match self {
+            L1 => false,
+            L2 | L1L2 => true,
+        }
+    }
 }
 
 impl From<IsLevel> for u8 {
