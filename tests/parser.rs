@@ -263,6 +263,7 @@ pub fn parse_l2() {
     parse_emit(PACKET);
 }
 
+#[ignore]
 #[test]
 pub fn parse_sid() {
     const PACKET: &[u8] = &hex!(

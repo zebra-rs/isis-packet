@@ -305,7 +305,7 @@ pub struct IsisHello {
 
 impl IsisHello {
     pub fn emit(&self, buf: &mut BytesMut) {
-        buf.put_u8(self.circuit_type.clone().into());
+        buf.put_u8(self.circuit_type.into());
         buf.put(&self.source_id.id[..]);
         buf.put_u16(self.hold_time);
         let pp = buf.len();
