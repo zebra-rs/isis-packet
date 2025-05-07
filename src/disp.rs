@@ -4,8 +4,8 @@ use crate::{
     Algo, IsLevel, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId,
     IsisPacket, IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
     IsisTlvIpv4IfAddr, IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId,
-    IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvPadding, IsisTlvProtoSupported, IsisTlvSrv6,
-    IsisTlvTeRouterId, SidLabelValue,
+    IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvP2p3Way, IsisTlvPadding, IsisTlvProtoSupported,
+    IsisTlvSrv6, IsisTlvTeRouterId, SidLabelValue,
 };
 
 impl Display for IsisPacket {
@@ -172,12 +172,9 @@ impl Display for IsisTlv {
             Ipv6GlobalIfAddr(v) => write!(f, "{}", v),
             Ipv6Reach(v) => write!(f, "{}", v),
             RouterCap(v) => write!(f, "{}", v),
-            MtIpReach(_) => {
-                write!(f, "")
-            }
-            MtIpv6Reach(_) => {
-                write!(f, "")
-            }
+            MtIpReach(_) => write!(f, ""),
+            MtIpv6Reach(_) => write!(f, ""),
+            P2p3Way(v) => write!(f, "{}", v),
             Unknown(v) => {
                 write!(f, "  {:?}", v.typ)
             }
@@ -381,5 +378,15 @@ impl Display for Algo {
             FlexAlgo(v) => write!(f, "FlexAlgo({})", v),
             Unknown(v) => write!(f, "Unknown({})", v),
         }
+    }
+}
+
+impl Display for IsisTlvP2p3Way {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "  Three-Way Handshake : State:{}, Local circuit ID:{}, Neighbor:{}, Neighbor circuit ID:{}",
+            self.state, self.circuit_id, self.neighbor_id, self.neighbor_circuit_id
+        )
     }
 }

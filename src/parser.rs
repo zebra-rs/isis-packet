@@ -412,6 +412,8 @@ pub enum IsisTlv {
     Ipv6Reach(IsisTlvIpv6Reach),
     #[nom(Selector = "IsisTlvType::MtIpv6Reach")]
     MtIpv6Reach(IsisTlvMtIpv6Reach),
+    #[nom(Selector = "IsisTlvType::P2p3Way")]
+    P2p3Way(IsisTlvP2p3Way),
     #[nom(Selector = "IsisTlvType::RouterCap")]
     RouterCap(IsisTlvRouterCap),
     #[nom(Selector = "_")]
@@ -439,6 +441,7 @@ impl IsisTlv {
             MtIpReach(v) => v.tlv_emit(buf),
             Ipv6Reach(v) => v.tlv_emit(buf),
             MtIpv6Reach(v) => v.tlv_emit(buf),
+            P2p3Way(v) => v.tlv_emit(buf),
             RouterCap(v) => v.tlv_emit(buf),
             Unknown(v) => v.emit(buf),
         }
@@ -778,6 +781,37 @@ impl From<IsisTlvIpv6GlobalIfAddr> for IsisTlv {
     }
 }
 
+#[derive(Debug, NomBE, Clone, Serialize)]
+pub struct IsisTlvP2p3Way {
+    pub state: u8,
+    pub circuit_id: u32,
+    pub neighbor_id: IsisNeighborId,
+    pub neighbor_circuit_id: u32,
+}
+
+impl TlvEmitter for IsisTlvP2p3Way {
+    fn typ(&self) -> u8 {
+        IsisTlvType::P2p3Way.into()
+    }
+
+    fn len(&self) -> u8 {
+        1 + 4 + 7 + 4
+    }
+
+    fn emit(&self, buf: &mut BytesMut) {
+        buf.put_u8(self.state);
+        buf.put_u32(self.circuit_id);
+        buf.put(&self.neighbor_id.id[..]);
+        buf.put_u32(self.neighbor_circuit_id);
+    }
+}
+
+impl From<IsisTlvP2p3Way> for IsisTlv {
+    fn from(tlv: IsisTlvP2p3Way) -> Self {
+        IsisTlv::P2p3Way(tlv)
+    }
+}
+
 #[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisTlvUnknown {
     pub typ: IsisTlvType,
@@ -905,6 +939,8 @@ impl ParseBe<SidLabelValue> for SidLabelValue {
         }
     }
 }
+
+//
 
 impl IsisTlv {
     pub fn parse_tlv(input: &[u8]) -> IResult<&[u8], Self> {

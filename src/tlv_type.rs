@@ -25,6 +25,7 @@ pub enum IsisTlvType {
     MtIpReach = 235,
     Ipv6Reach = 236,
     MtIpv6Reach = 237,
+    P2p3Way = 240,
     RouterCap = 242,
     Unknown(u8),
 }
@@ -59,6 +60,7 @@ impl IsisTlvType {
                 | MtIpReach
                 | Ipv6Reach
                 | MtIpv6Reach
+                | P2p3Way
                 | RouterCap
         )
     }
@@ -85,6 +87,7 @@ impl From<IsisTlvType> for u8 {
             MtIpReach => 235,
             Ipv6Reach => 236,
             MtIpv6Reach => 237,
+            P2p3Way => 240,
             RouterCap => 242,
             Unknown(v) => v,
         }
@@ -112,6 +115,7 @@ impl From<u8> for IsisTlvType {
             235 => MtIpReach,
             236 => Ipv6Reach,
             237 => MtIpv6Reach,
+            240 => P2p3Way,
             242 => RouterCap,
             v => Unknown(v),
         }
