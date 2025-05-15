@@ -21,7 +21,7 @@ const ISIS_IRDP_DISC: u8 = 0x83;
 pub const IPV4_ADDR_LEN: u8 = 4;
 pub const IPV6_ADDR_LEN: u8 = 16;
 
-#[derive(Debug, NomBE)]
+#[derive(Debug, NomBE, Clone)]
 pub struct IsisPacket {
     #[nom(Verify = "*discriminator == ISIS_IRDP_DISC")]
     pub discriminator: u8,
@@ -265,10 +265,12 @@ impl IsLevel {
         matches!(self, IsLevel::L2 | IsLevel::L1L2)
     }
 
-    pub fn capable(&self, typ: IsisType) -> bool {
+    pub fn capable(&self, typ: &IsisType) -> bool {
         match typ {
             IsisType::L1Hello => matches!(self, IsLevel::L1 | IsLevel::L1L2),
             IsisType::L2Hello => matches!(self, IsLevel::L2 | IsLevel::L1L2),
+            IsisType::L1Lsp => matches!(self, IsLevel::L1 | IsLevel::L1L2),
+            IsisType::L2Lsp => matches!(self, IsLevel::L2 | IsLevel::L1L2),
             _ => false,
         }
     }
@@ -949,8 +951,6 @@ impl ParseBe<SidLabelValue> for SidLabelValue {
         }
     }
 }
-
-//
 
 impl IsisTlv {
     pub fn parse_tlv(input: &[u8]) -> IResult<&[u8], Self> {
