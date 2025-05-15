@@ -973,6 +973,10 @@ impl IsisTlv {
     }
 }
 
+pub fn is_valid_checksum(input: &[u8]) -> bool {
+    fletcher::calc_fletcher16(&input[12..]) == 0
+}
+
 pub fn parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {
     IsisPacket::parse_be(input)
 }

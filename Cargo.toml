@@ -24,6 +24,7 @@ include = [
 bitfield-struct = "0.9"
 byteorder = "1.5"
 bytes = "1.9"
+fletcher = "1.0.0"
 hex = "0.4.3"
 ipnet = { version = "2.10", features = ["serde"] }
 nom = "7"

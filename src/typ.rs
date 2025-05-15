@@ -83,4 +83,11 @@ impl IsisType {
         let isis_type: Self = typ.into();
         Ok((input, isis_type))
     }
+
+    pub fn is_lsp(&self) -> bool {
+        match self {
+            IsisType::L1Lsp | IsisType::L2Lsp => true,
+            _ => false,
+        }
+    }
 }
