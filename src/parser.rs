@@ -8,6 +8,7 @@ use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use serde::Serialize;
 
+use super::checksum_calc;
 use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
@@ -87,6 +88,10 @@ impl IsisPacket {
             L1Psnp(v) => v.emit(buf),
             L2Psnp(v) => v.emit(buf),
             Unknown(_) => {}
+        }
+        if self.pdu_type.is_lsp() {
+            let checksum = checksum_calc(&buf[12..]);
+            buf[24..26].copy_from_slice(&checksum);
         }
     }
 }
@@ -971,10 +976,6 @@ impl IsisTlv {
     pub fn parse_tlvs(input: &[u8]) -> IResult<&[u8], Vec<Self>> {
         many0(Self::parse_tlv)(input)
     }
-}
-
-pub fn is_valid_checksum(input: &[u8]) -> bool {
-    fletcher::calc_fletcher16(&input[12..]) == 0
 }
 
 pub fn parse(input: &[u8]) -> IResult<&[u8], IsisPacket> {

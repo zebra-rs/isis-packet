@@ -1,4 +1,5 @@
 mod algo;
+mod checksum;
 mod disp;
 mod nsap;
 mod padding;
@@ -9,6 +10,7 @@ mod typ;
 mod util;
 
 pub use algo::*;
+pub use checksum::*;
 pub use disp::*;
 pub use nsap::Nsap;
 pub use parser::*;
