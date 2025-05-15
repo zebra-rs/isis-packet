@@ -120,6 +120,12 @@ pub struct IsisSysId {
     pub id: [u8; 6],
 }
 
+impl IsisSysId {
+    pub fn is_empty(&self) -> bool {
+        self.id.iter().all(|&b| b == 0)
+    }
+}
+
 #[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
 pub struct IsisNeighborId {
     pub id: [u8; 7],
@@ -136,6 +142,10 @@ impl IsisNeighborId {
 
     pub fn pseudo_id(&self) -> u8 {
         self.id[6]
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.id.iter().all(|&b| b == 0)
     }
 }
 
