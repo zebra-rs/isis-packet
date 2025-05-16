@@ -268,6 +268,10 @@ impl IsLevel {
             IsisType::L2Hello => matches!(self, IsLevel::L2 | IsLevel::L1L2),
             IsisType::L1Lsp => matches!(self, IsLevel::L1 | IsLevel::L1L2),
             IsisType::L2Lsp => matches!(self, IsLevel::L2 | IsLevel::L1L2),
+            IsisType::L1Csnp => matches!(self, IsLevel::L1 | IsLevel::L1L2),
+            IsisType::L2Csnp => matches!(self, IsLevel::L2 | IsLevel::L1L2),
+            IsisType::L1Psnp => matches!(self, IsLevel::L1 | IsLevel::L1L2),
+            IsisType::L2Psnp => matches!(self, IsLevel::L2 | IsLevel::L1L2),
             _ => false,
         }
     }

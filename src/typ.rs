@@ -85,9 +85,6 @@ impl IsisType {
     }
 
     pub fn is_lsp(&self) -> bool {
-        match self {
-            IsisType::L1Lsp | IsisType::L2Lsp => true,
-            _ => false,
-        }
+        matches!(self, IsisType::L1Lsp | IsisType::L2Lsp)
     }
 }
