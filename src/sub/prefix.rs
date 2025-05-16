@@ -10,7 +10,7 @@ use nom_derive::*;
 use serde::Serialize;
 
 use crate::util::{many0, ParseBe, TlvEmitter};
-use crate::{Algo, IsisTlvType, SidLabelValue};
+use crate::{Algo, IsisTlv, IsisTlvType, SidLabelValue};
 
 use super::{Behavior, IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};
 
@@ -241,7 +241,7 @@ pub struct Ipv4ControlInfo {
     pub distribution: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Default, Clone, Serialize)]
 pub struct IsisTlvExtIpReach {
     pub entries: Vec<IsisTlvExtIpReachEntry>,
 }
@@ -264,6 +264,12 @@ impl TlvEmitter for IsisTlvExtIpReach {
 
     fn emit(&self, buf: &mut BytesMut) {
         self.entries.iter().for_each(|entry| entry.emit(buf));
+    }
+}
+
+impl From<IsisTlvExtIpReach> for IsisTlv {
+    fn from(tlv: IsisTlvExtIpReach) -> Self {
+        IsisTlv::ExtIpReach(tlv)
     }
 }
 
@@ -343,7 +349,7 @@ impl IsisTlvExtIpReachEntry {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Default, Clone, Serialize)]
 pub struct IsisTlvIpv6Reach {
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
 }
@@ -366,6 +372,12 @@ impl TlvEmitter for IsisTlvIpv6Reach {
 
     fn emit(&self, buf: &mut BytesMut) {
         self.entries.iter().for_each(|entry| entry.emit(buf));
+    }
+}
+
+impl From<IsisTlvIpv6Reach> for IsisTlv {
+    fn from(tlv: IsisTlvIpv6Reach) -> Self {
+        IsisTlv::Ipv6Reach(tlv)
     }
 }
 
