@@ -218,8 +218,6 @@ pub struct IsisLsp {
     pub types: u8,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
-    #[nom(Ignore)]
-    pub originated: bool,
 }
 
 impl IsisLsp {
