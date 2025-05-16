@@ -234,13 +234,6 @@ impl IsisLsp {
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
     }
 
-    pub fn clone_with_seqno_inc(&self) -> Self {
-        let mut lsp = self.clone();
-        lsp.seq_number += 1;
-        lsp.checksum = 0;
-        lsp
-    }
-
     pub fn hostname_tlv(&self) -> Option<&IsisTlvHostname> {
         self.tlvs.iter().find_map(|tlv| {
             if let IsisTlv::Hostname(tlv) = tlv {
