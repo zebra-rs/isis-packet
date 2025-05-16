@@ -237,6 +237,7 @@ impl IsisLsp {
     pub fn clone_with_seqno_inc(&self) -> Self {
         let mut lsp = self.clone();
         lsp.seq_number += 1;
+        lsp.checksum = 0;
         lsp
     }
 
