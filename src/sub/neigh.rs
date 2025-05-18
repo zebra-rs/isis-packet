@@ -52,6 +52,7 @@ impl TlvEmitter for IsisTlvExtIsReach {
 pub struct IsisTlvExtIsReachEntry {
     pub neighbor_id: IsisNeighborId,
     pub metric: u32,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub subs: Vec<IsisSubTlv>,
 }
 
@@ -340,6 +341,7 @@ pub struct IsisSubSrv6EndXSid {
     pub weight: u8,
     pub behavior: Behavior,
     pub sid: Ipv6Addr,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub sub2s: Vec<IsisSub2Tlv>,
 }
 
@@ -403,6 +405,7 @@ pub struct IsisSubSrv6LanEndXSid {
     pub weight: u8,
     pub behavior: Behavior,
     pub sid: Ipv6Addr,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub sub2s: Vec<IsisSub2Tlv>,
 }
 

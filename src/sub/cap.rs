@@ -275,6 +275,7 @@ impl ParseBe<RouterCapFlags> for RouterCapFlags {
 pub struct IsisTlvRouterCap {
     pub router_id: Ipv4Addr,
     pub flags: RouterCapFlags,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub subs: Vec<IsisSubTlv>,
 }
 

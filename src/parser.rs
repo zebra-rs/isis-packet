@@ -7,7 +7,7 @@ use nom::bytes::complete::take;
 use nom::number::complete::{be_u128, be_u24, be_u32, be_u8};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
 use super::checksum_calc;
 use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
@@ -132,7 +132,7 @@ impl IsisSysId {
     }
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize)]
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub struct IsisNeighborId {
     pub id: [u8; 7],
 }
@@ -155,7 +155,16 @@ impl IsisNeighborId {
     }
 }
 
-#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Serialize)]
+impl Serialize for IsisNeighborId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+#[derive(Debug, Default, NomBE, PartialOrd, Ord, PartialEq, Eq, Clone, Copy)]
 pub struct IsisLspId {
     pub id: [u8; 8],
 }
@@ -206,6 +215,15 @@ impl IsisLspId {
 
     pub fn is_fragment(&self) -> bool {
         self.id[7] != 0
+    }
+}
+
+impl Serialize for IsisLspId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }
 

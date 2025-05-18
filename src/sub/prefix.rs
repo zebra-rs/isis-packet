@@ -74,6 +74,7 @@ pub struct IsisSubSrv6EndSid {
     pub flags: u8,
     pub behavior: Behavior,
     pub sid: Ipv6Addr,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub sub2s: Vec<IsisSub2Tlv>,
 }
 
@@ -314,6 +315,7 @@ pub struct IsisTlvExtIpReachEntry {
     pub metric: u32,
     pub flags: Ipv4ControlInfo,
     pub prefix: Ipv4Net,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub subs: Vec<IsisSubTlv>,
 }
 
@@ -441,6 +443,7 @@ pub struct IsisTlvIpv6ReachEntry {
     pub metric: u32,
     pub flags: Ipv6ControlInfo,
     pub prefix: Ipv6Net,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub subs: Vec<IsisSubTlv>,
 }
 
@@ -586,6 +589,7 @@ pub struct Srv6Locator {
     pub flags: u8,
     pub algo: Algo,
     pub locator: Ipv6Net,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub subs: Vec<IsisSubTlv>,
 }
 
