@@ -208,6 +208,23 @@ impl IsisLspId {
     }
 }
 
+impl From<IsisNeighborId> for IsisLspId {
+    fn from(value: IsisNeighborId) -> Self {
+        Self {
+            id: [
+                value.id[0],
+                value.id[1],
+                value.id[2],
+                value.id[3],
+                value.id[4],
+                value.id[5],
+                value.id[6],
+                0,
+            ],
+        }
+    }
+}
+
 #[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisLsp {
     pub pdu_len: u16,
