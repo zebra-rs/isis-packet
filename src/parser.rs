@@ -1,5 +1,6 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
+use bitfield_struct::bitfield;
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
@@ -225,6 +226,33 @@ impl From<IsisNeighborId> for IsisLspId {
     }
 }
 
+#[bitfield(u8, debug = true)]
+#[derive(Serialize)]
+pub struct IsisLspTypes {
+    #[bits(2)]
+    pub is_bits: u8,
+    pub ol_bits: bool,
+    #[bits(4)]
+    pub att_bits: u8,
+    pub p_bits: bool,
+}
+
+impl ParseBe<IsisLspTypes> for IsisLspTypes {
+    fn parse_be(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, types) = be_u8(input)?;
+        Ok((input, types.into()))
+    }
+}
+
+impl IsisLspTypes {
+    pub fn from(level: u8) -> Self {
+        match level {
+            1 => IsisLspTypes::new().with_is_bits(0x01),
+            _ => IsisLspTypes::new().with_is_bits(0x03),
+        }
+    }
+}
+
 #[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisLsp {
     pub pdu_len: u16,
@@ -232,7 +260,7 @@ pub struct IsisLsp {
     pub lsp_id: IsisLspId,
     pub seq_number: u32,
     pub checksum: u16,
-    pub types: u8,
+    pub types: IsisLspTypes,
     #[nom(Parse = "IsisTlv::parse_tlvs")]
     pub tlvs: Vec<IsisTlv>,
 }
@@ -245,7 +273,7 @@ impl IsisLsp {
         buf.put(&self.lsp_id.id[..]);
         buf.put_u32(self.seq_number);
         buf.put_u16(self.checksum);
-        buf.put_u8(self.types);
+        buf.put_u8(self.types.into());
         self.tlvs.iter().for_each(|tlv| tlv.emit(buf));
         let pdu_len: u16 = buf.len() as u16;
         BigEndian::write_u16(&mut buf[pp..pp + 2], pdu_len);
