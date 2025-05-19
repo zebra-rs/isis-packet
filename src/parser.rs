@@ -138,7 +138,7 @@ pub struct IsisNeighborId {
 }
 
 impl IsisNeighborId {
-    pub fn from_sys_id(&self, sys_id: &IsisSysId, pseudo_id: u8) -> Self {
+    pub fn from_sys_id(sys_id: &IsisSysId, pseudo_id: u8) -> Self {
         Self {
             id: [
                 sys_id.id[0],
