@@ -185,6 +185,21 @@ impl IsisLspId {
         }
     }
 
+    pub fn from_neighbor_id(neighbor_id: IsisNeighborId, fragment_id: u8) -> Self {
+        Self {
+            id: [
+                neighbor_id.id[0],
+                neighbor_id.id[1],
+                neighbor_id.id[2],
+                neighbor_id.id[3],
+                neighbor_id.id[4],
+                neighbor_id.id[5],
+                neighbor_id.id[6],
+                fragment_id,
+            ],
+        }
+    }
+
     pub fn sys_id(&self) -> IsisSysId {
         IsisSysId {
             id: [
