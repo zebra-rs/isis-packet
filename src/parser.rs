@@ -184,6 +184,16 @@ pub struct IsisLspId {
 }
 
 impl IsisLspId {
+    pub fn start() -> Self {
+        Self::default()
+    }
+
+    pub fn end() -> Self {
+        Self {
+            id: [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+        }
+    }
+
     pub fn new(sys_id: IsisSysId, pseudo_id: u8, fragment_id: u8) -> Self {
         Self {
             id: [
@@ -433,7 +443,7 @@ impl IsisHello {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisCsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
@@ -458,7 +468,7 @@ impl IsisCsnp {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, Default, NomBE, Clone, Serialize)]
 pub struct IsisPsnp {
     pub pdu_len: u16,
     pub source_id: IsisSysId,
