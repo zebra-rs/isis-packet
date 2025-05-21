@@ -14,7 +14,7 @@ use crate::{Algo, IsisTlv, IsisTlvType, SidLabelValue};
 
 use super::{Behavior, IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisPrefixCode")]
 pub enum IsisSubTlv {
@@ -27,7 +27,7 @@ pub enum IsisSubTlv {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct PrefixSidFlags {
     #[bits(2)]
     pub resvd: u8,
@@ -46,7 +46,7 @@ impl ParseBe<PrefixSidFlags> for PrefixSidFlags {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubPrefixSid {
     pub flags: PrefixSidFlags,
     pub algo: Algo,
@@ -69,7 +69,7 @@ impl TlvEmitter for IsisSubPrefixSid {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisSubSrv6EndSid {
     pub flags: u8,
     pub behavior: Behavior,
@@ -124,7 +124,7 @@ impl TlvEmitter for IsisSubSrv6EndSid {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSub2SidStructure {
     pub lb_len: u8,
     pub ln_len: u8,
@@ -149,7 +149,7 @@ impl TlvEmitter for IsisSub2SidStructure {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisSrv6SidSub2Code")]
 pub enum IsisSub2Tlv {
@@ -234,7 +234,7 @@ impl IsisSubTlv {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct Ipv4ControlInfo {
     #[bits(6)]
     pub prefixlen: usize,
@@ -242,7 +242,7 @@ pub struct Ipv4ControlInfo {
     pub distribution: bool,
 }
 
-#[derive(Debug, Default, Clone, Serialize)]
+#[derive(Debug, Default, Clone, Serialize, PartialEq)]
 pub struct IsisTlvExtIpReach {
     pub entries: Vec<IsisTlvExtIpReachEntry>,
 }
@@ -274,7 +274,7 @@ impl From<IsisTlvExtIpReach> for IsisTlv {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisTlvMtIpReach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvExtIpReachEntry>,
@@ -310,7 +310,7 @@ impl TlvEmitter for IsisTlvMtIpReach {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisTlvExtIpReachEntry {
     pub metric: u32,
     pub flags: Ipv4ControlInfo,
@@ -351,7 +351,7 @@ impl IsisTlvExtIpReachEntry {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize)]
+#[derive(Debug, Default, Clone, Serialize, PartialEq)]
 pub struct IsisTlvIpv6Reach {
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
 }
@@ -384,7 +384,7 @@ impl From<IsisTlvIpv6Reach> for IsisTlv {
 }
 
 #[bitfield(u16, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct MultiTopologyId {
     #[bits(4)]
     pub resvd: u8,
@@ -392,7 +392,7 @@ pub struct MultiTopologyId {
     pub id: u16,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisTlvMtIpv6Reach {
     pub mt: MultiTopologyId,
     pub entries: Vec<IsisTlvIpv6ReachEntry>,
@@ -429,7 +429,7 @@ impl TlvEmitter for IsisTlvMtIpv6Reach {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct Ipv6ControlInfo {
     #[bits(5)]
     pub resvd: usize,
@@ -438,7 +438,7 @@ pub struct Ipv6ControlInfo {
     pub dist_up: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisTlvIpv6ReachEntry {
     pub metric: u32,
     pub flags: Ipv6ControlInfo,
@@ -568,7 +568,7 @@ impl ParseBe<IsisTlvIpv6ReachEntry> for IsisTlvIpv6ReachEntry {
 }
 
 #[bitfield(u16, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct Srv6TlvFlags {
     #[bits(4)]
     pub resvd: u8,
@@ -583,7 +583,7 @@ impl ParseBe<Srv6TlvFlags> for Srv6TlvFlags {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Srv6Locator {
     pub metric: u32,
     pub flags: u8,
@@ -644,7 +644,7 @@ impl ParseBe<Srv6Locator> for Srv6Locator {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize, PartialEq)]
 pub struct IsisTlvSrv6 {
     pub flags: Srv6TlvFlags,
     pub locators: Vec<Srv6Locator>,

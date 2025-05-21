@@ -1,4 +1,4 @@
-use nom_derive::*;
+pub use nom_derive::*;
 
 #[derive(NomBE)]
 pub struct IsisCodeLen {
@@ -9,7 +9,7 @@ pub struct IsisCodeLen {
 pub mod cap;
 pub use cap::{
     IsisSubNodeMaxSidDepth, IsisSubSegmentRoutingAlgo, IsisSubSegmentRoutingCap,
-    IsisSubSegmentRoutingLB, IsisTlvRouterCap, SegmentRoutingCapFlags, SidLabelTlv,
+    IsisSubSegmentRoutingLB, IsisSubSrv6, IsisTlvRouterCap, SegmentRoutingCapFlags, SidLabelTlv,
 };
 pub mod cap_code;
 pub use cap_code::IsisCapCode;

@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::util::ParseBe;
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 pub enum Algo {
     Spf,
     StrictSpf,

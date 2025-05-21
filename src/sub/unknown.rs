@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::util::TlvEmitter;
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubTlvUnknown {
     #[nom(Ignore)]
     pub code: u8,

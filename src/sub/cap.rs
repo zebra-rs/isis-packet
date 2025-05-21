@@ -12,7 +12,7 @@ use crate::{Algo, IsisTlv, IsisTlvType};
 
 use super::{IsisCapCode, IsisCodeLen, IsisSubTlvUnknown};
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisCapCode")]
 pub enum IsisSubTlv {
@@ -74,7 +74,7 @@ impl IsisSubTlv {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub enum SidLabelTlv {
     Label(u32),
     Index(u32),
@@ -121,7 +121,7 @@ pub fn parse_sid_label(input: &[u8]) -> IResult<&[u8], SidLabelTlv> {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct SegmentRoutingCapFlags {
     #[bits(6)]
     pub resvd: u8,
@@ -136,7 +136,7 @@ impl ParseBe<SegmentRoutingCapFlags> for SegmentRoutingCapFlags {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubSegmentRoutingCap {
     pub flags: SegmentRoutingCapFlags,
     #[nom(Parse = "be_u24")]
@@ -168,7 +168,7 @@ impl From<IsisSubSegmentRoutingCap> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisSubSegmentRoutingAlgo {
     pub algo: Vec<Algo>,
 }
@@ -202,7 +202,7 @@ impl From<IsisSubSegmentRoutingAlgo> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubSegmentRoutingLB {
     pub flags: u8,
     #[nom(Parse = "be_u24")]
@@ -234,7 +234,7 @@ impl From<IsisSubSegmentRoutingLB> for IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubNodeMaxSidDepth {
     pub flags: u8,
     pub depth: u8,
@@ -256,7 +256,7 @@ impl TlvEmitter for IsisSubNodeMaxSidDepth {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct RouterCapFlags {
     #[bits(6)]
     pub resvd: u8,
@@ -271,7 +271,7 @@ impl ParseBe<RouterCapFlags> for RouterCapFlags {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct IsisTlvRouterCap {
     pub router_id: Ipv4Addr,
     pub flags: RouterCapFlags,
@@ -322,7 +322,7 @@ impl From<IsisTlvRouterCap> for IsisTlv {
 }
 
 #[bitfield(u16, debug = true)]
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 pub struct Srv6Flags {
     #[bits(14)]
     pub resvd2: u16,
@@ -337,7 +337,7 @@ impl ParseBe<Srv6Flags> for Srv6Flags {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize)]
+#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubSrv6 {
     pub flags: Srv6Flags,
 }
