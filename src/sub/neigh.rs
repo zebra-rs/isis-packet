@@ -286,6 +286,22 @@ impl ParseBe<AdjSidFlags> for AdjSidFlags {
     }
 }
 
+impl AdjSidFlags {
+    pub fn lan_adj_flag_ipv4() -> Self {
+        AdjSidFlags::new()
+            .with_f_flag(false)
+            .with_l_flag(true)
+            .with_v_flag(true)
+    }
+
+    pub fn lan_adj_flag_ipv6() -> Self {
+        AdjSidFlags::new()
+            .with_f_flag(true)
+            .with_l_flag(true)
+            .with_v_flag(true)
+    }
+}
+
 #[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
 pub struct IsisSubAdjSid {
     pub flags: AdjSidFlags,

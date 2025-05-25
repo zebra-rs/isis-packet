@@ -349,6 +349,15 @@ impl IsisTlvExtIpReachEntry {
             sub.emit(buf);
         }
     }
+
+    pub fn prefix_sid(&self) -> Option<IsisSubPrefixSid> {
+        for sub in self.subs.iter() {
+            if let IsisSubTlv::PrefixSid(prefix_sid) = sub {
+                return Some(prefix_sid.clone());
+            }
+        }
+        None
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, PartialEq)]
