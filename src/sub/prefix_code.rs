@@ -16,7 +16,7 @@ impl From<IsisPrefixCode> for u8 {
         use IsisPrefixCode::*;
         match typ {
             PrefixSid => 3,
-            Srv6EndSid => 3,
+            Srv6EndSid => 5,
             Unknown(v) => v,
         }
     }

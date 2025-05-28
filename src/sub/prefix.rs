@@ -106,7 +106,7 @@ impl TlvEmitter for IsisSubSrv6EndSid {
 
     fn len(&self) -> u8 {
         // Flags(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
-        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len() + 2).sum();
         1 + 2 + 16 + 1 + len
     }
 
@@ -120,7 +120,7 @@ impl TlvEmitter for IsisSubSrv6EndSid {
         for sub2 in &self.sub2s {
             sub2.emit(buf);
         }
-        buf[pp] = (buf.len() - pp) as u8;
+        buf[pp - 1] = (buf.len() - pp) as u8;
     }
 }
 
@@ -605,16 +605,16 @@ pub struct Srv6Locator {
 impl Srv6Locator {
     fn len(&self) -> u8 {
         // Metric(4)+Flags(1)+Algo(1)+Locator(16)+SubLen(1)+Subs
-        let sub_len: u8 = self.subs.iter().map(|sub| sub.len()).sum();
-        4 + 1 + 1 + 16 + 1 + sub_len
+        let sub_len: u8 = self.subs.iter().map(|sub| sub.len() + 2).sum();
+        4 + 1 + 1 + 1 + (psize(self.locator.prefix_len()) as u8) + 1 + sub_len
     }
 
     fn emit(&self, buf: &mut BytesMut) {
         buf.put_u32(self.metric);
         buf.put_u8(self.flags);
         buf.put_u8(self.algo.into());
+        buf.put_u8(self.locator.prefix_len() as u8);
         let plen = psize(self.locator.prefix_len());
-        buf.put_u8(plen as u8);
         if plen != 0 {
             buf.put(&self.locator.addr().octets()[..plen]);
         }
@@ -624,7 +624,7 @@ impl Srv6Locator {
         for sub in &self.subs {
             sub.emit(buf);
         }
-        buf[pp] = (buf.len() - pp) as u8;
+        buf[pp - 1] = (buf.len() - pp) as u8;
     }
 }
 

@@ -393,7 +393,7 @@ impl TlvEmitter for IsisSubSrv6EndXSid {
 
     fn len(&self) -> u8 {
         // Flags(1)+Algo(1)+Weight(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
-        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len() + 2).sum();
         1 + 1 + 1 + 2 + 16 + 1 + len
     }
 
@@ -409,7 +409,7 @@ impl TlvEmitter for IsisSubSrv6EndXSid {
         for sub2 in &self.sub2s {
             sub2.emit(buf);
         }
-        buf[pp] = (buf.len() - pp) as u8;
+        buf[pp - 1] = (buf.len() - pp) as u8;
     }
 }
 
@@ -459,7 +459,7 @@ impl TlvEmitter for IsisSubSrv6LanEndXSid {
 
     fn len(&self) -> u8 {
         // SystemID(6)+Flags(1)+Algo(1)+Weight(1)+Behavior(2)+Sid(16)+Sub2Len(1)+Sub2
-        let len: u8 = self.sub2s.iter().map(|sub| sub.len()).sum();
+        let len: u8 = self.sub2s.iter().map(|sub| sub.len() + 2).sum();
         6 + 1 + 1 + 1 + 2 + 16 + 1 + len
     }
 
@@ -476,6 +476,6 @@ impl TlvEmitter for IsisSubSrv6LanEndXSid {
         for sub2 in &self.sub2s {
             sub2.emit(buf);
         }
-        buf[pp] = (buf.len() - pp) as u8;
+        buf[pp - 1] = (buf.len() - pp) as u8;
     }
 }
