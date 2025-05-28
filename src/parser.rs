@@ -356,14 +356,6 @@ pub enum IsLevel {
 }
 
 impl IsLevel {
-    pub fn has_l1(&self) -> bool {
-        matches!(self, IsLevel::L1 | IsLevel::L1L2)
-    }
-
-    pub fn has_l2(&self) -> bool {
-        matches!(self, IsLevel::L2 | IsLevel::L1L2)
-    }
-
     pub fn capable(&self, typ: &IsisType) -> bool {
         match typ {
             IsisType::L1Hello => matches!(self, IsLevel::L1 | IsLevel::L1L2),
