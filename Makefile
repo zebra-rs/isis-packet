@@ -21,3 +21,6 @@ json:
 
 sid:
 	@cargo test --quiet sid -- --nocapture
+
+srv6:
+	@cargo test --quiet srv6 -- --nocapture
