@@ -45,6 +45,12 @@ impl fmt::Display for Nsap {
 }
 
 impl Nsap {
+    pub fn area_id(&self) -> Vec<u8> {
+        let mut area_id = self.area_id.clone();
+        area_id.insert(0, self.afi);
+        area_id
+    }
+
     pub fn sys_id(&self) -> IsisSysId {
         IsisSysId {
             id: [
