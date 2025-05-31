@@ -36,6 +36,8 @@ pub struct IsisPacket {
     pub max_area_addr: u8,
     #[nom(Parse = "{ |x| IsisPdu::parse_be(x, pdu_type) }")]
     pub pdu: IsisPdu,
+    #[nom(Ignore)]
+    pub bytes: Vec<u8>,
 }
 
 pub fn length_indicator(pdu_type: IsisType) -> u8 {
@@ -66,6 +68,7 @@ impl IsisPacket {
             resvd: 0,
             max_area_addr: 0,
             pdu,
+            bytes: vec![],
         }
     }
 
