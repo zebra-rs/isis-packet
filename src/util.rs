@@ -1,4 +1,4 @@
-use byteorder::BigEndian;
+use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use nom::{error::ParseError, IResult};
 
@@ -47,5 +47,5 @@ pub trait TlvEmitter {
 }
 
 pub fn write_hold_time(buf: &mut BytesMut, hold_time: u16) {
-    BigEndian::write_u16(buf[10..12], hold_time);
+    BigEndian::write_u16(&mut buf[10..12], hold_time);
 }
