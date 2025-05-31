@@ -17,3 +17,4 @@ pub use parser::*;
 pub use sub::*;
 pub use tlv_type::IsisTlvType;
 pub use typ::IsisType;
+pub use util::write_hold_time;
