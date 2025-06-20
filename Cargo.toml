@@ -27,8 +27,8 @@ bytes = "1.9"
 fletcher = "1.0.0"
 hex = "0.4.3"
 ipnet = { version = "2.10", features = ["serde"] }
-nom = "7"
-nom-derive = "0.10"
+nom = "8"
+nom-derive = { git = "https://github.com/rust-bakery/nom-derive", branch = "master" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 
