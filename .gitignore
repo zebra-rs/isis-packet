@@ -2,3 +2,5 @@
 /.vscode
 /target
 Cargo.lock
+.claude
+CLAUDE.md

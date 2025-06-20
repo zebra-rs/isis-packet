@@ -613,7 +613,7 @@ impl Srv6Locator {
         buf.put_u32(self.metric);
         buf.put_u8(self.flags);
         buf.put_u8(self.algo.into());
-        buf.put_u8(self.locator.prefix_len() as u8);
+        buf.put_u8(self.locator.prefix_len());
         let plen = psize(self.locator.prefix_len());
         if plen != 0 {
             buf.put(&self.locator.addr().octets()[..plen]);

@@ -5,7 +5,7 @@ use crate::{
     IsisPacket, IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
     IsisTlvIpv4IfAddr, IsisTlvIpv6GlobalIfAddr, IsisTlvIpv6IfAddr, IsisTlvIpv6TeRouterId,
     IsisTlvIsNeighbor, IsisTlvLspEntries, IsisTlvP2p3Way, IsisTlvPadding, IsisTlvProtoSupported,
-    IsisTlvSrv6, IsisTlvTeRouterId, SidLabelValue,
+    IsisTlvSrv6, IsisTlvTeRouterId, NeighborAddr, SidLabelValue,
 };
 
 impl Display for IsisPacket {
@@ -239,7 +239,7 @@ impl Display for IsisTlvAreaAddr {
     }
 }
 
-impl Display for IsisTlvIsNeighbor {
+impl Display for NeighborAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
@@ -251,6 +251,15 @@ impl Display for IsisTlvIsNeighbor {
             self.octets[4],
             self.octets[5],
         )
+    }
+}
+
+impl Display for IsisTlvIsNeighbor {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        for neighbor in self.neighbors.iter() {
+            write!(f, "{}", neighbor)?;
+        }
+        Ok(())
     }
 }
 
