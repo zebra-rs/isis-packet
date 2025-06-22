@@ -33,4 +33,4 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 
 [dev-dependencies]
-hex-literal = "0.3"
+hex-literal = "1.0"
