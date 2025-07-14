@@ -1,9 +1,9 @@
 use std::fmt::{Display, Formatter, Result};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[repr(u16)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Behavior {
     End,
     EndX,

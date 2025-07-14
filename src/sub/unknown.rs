@@ -1,10 +1,10 @@
 use bytes::{BufMut, BytesMut};
 use nom_derive::*;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::util::TlvEmitter;
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubTlvUnknown {
     #[nom(Ignore)]
     pub code: u8,
