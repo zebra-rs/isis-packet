@@ -1,10 +1,10 @@
 use nom::number::complete::be_u8;
 use nom::IResult;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::util::ParseBe;
 
-#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum Algo {
     Spf,
     StrictSpf,

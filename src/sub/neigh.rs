@@ -6,7 +6,7 @@ use nom::bytes::complete::take;
 use nom::number::complete::{be_u16, be_u24, be_u8};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
 use crate::{
@@ -16,7 +16,7 @@ use crate::{
 
 use super::{Behavior, IsisCodeLen, IsisNeighCode, IsisSub2Tlv, IsisSubTlvUnknown};
 
-#[derive(Debug, Default, Clone, Serialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisTlvExtIsReach {
     pub entries: Vec<IsisTlvExtIsReachEntry>,
 }
@@ -48,7 +48,7 @@ impl TlvEmitter for IsisTlvExtIsReach {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisTlvExtIsReachEntry {
     pub neighbor_id: IsisNeighborId,
     pub metric: u32,
@@ -92,7 +92,7 @@ impl ParseBe<IsisTlvExtIsReachEntry> for IsisTlvExtIsReachEntry {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[nom(Selector = "IsisNeighCode")]
 pub enum IsisSubTlv {
@@ -170,7 +170,7 @@ impl IsisSubTlv {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubIpv4IfAddr {
     pub addr: Ipv4Addr,
 }
@@ -189,7 +189,7 @@ impl TlvEmitter for IsisSubIpv4IfAddr {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubIpv4NeighAddr {
     pub addr: Ipv4Addr,
 }
@@ -208,7 +208,7 @@ impl TlvEmitter for IsisSubIpv4NeighAddr {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubIpv6IfAddr {
     pub addr: Ipv6Addr,
 }
@@ -227,7 +227,7 @@ impl TlvEmitter for IsisSubIpv6IfAddr {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubIpv6NeighAddr {
     pub addr: Ipv6Addr,
 }
@@ -246,7 +246,7 @@ impl TlvEmitter for IsisSubIpv6NeighAddr {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubWideMetric {
     #[nom(Parse = "be_u24")]
     pub metric: u32,
@@ -267,7 +267,7 @@ impl TlvEmitter for IsisSubWideMetric {
 }
 
 #[bitfield(u8, debug = true)]
-#[derive(Serialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct AdjSidFlags {
     #[bits(2)]
     pub resvd: u8,
@@ -302,7 +302,7 @@ impl AdjSidFlags {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubAdjSid {
     pub flags: AdjSidFlags,
     pub weight: u8,
@@ -325,7 +325,7 @@ impl TlvEmitter for IsisSubAdjSid {
     }
 }
 
-#[derive(Debug, NomBE, Clone, Serialize, PartialEq)]
+#[derive(Debug, NomBE, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubLanAdjSid {
     pub flags: AdjSidFlags,
     pub weight: u8,
@@ -350,7 +350,7 @@ impl TlvEmitter for IsisSubLanAdjSid {
     }
 }
 
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubSrv6EndXSid {
     pub flags: u8,
     pub algo: Algo,
@@ -413,7 +413,7 @@ impl TlvEmitter for IsisSubSrv6EndXSid {
     }
 }
 
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IsisSubSrv6LanEndXSid {
     pub system_id: IsisSysId,
     pub flags: u8,
