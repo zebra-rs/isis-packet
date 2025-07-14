@@ -1,6 +1,7 @@
 mod algo;
 mod checksum;
 mod disp;
+mod error;
 mod nsap;
 mod padding;
 mod parser;
@@ -12,6 +13,7 @@ mod util;
 pub use algo::*;
 pub use checksum::*;
 pub use disp::*;
+pub use error::*;
 pub use nsap::Nsap;
 pub use parser::*;
 pub use sub::*;
