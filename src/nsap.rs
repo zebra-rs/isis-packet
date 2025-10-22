@@ -23,12 +23,12 @@ impl fmt::Display for NsapParseError {
 
 impl fmt::Display for Nsap {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:02x}", self.afi).unwrap();
+        write!(f, "{:02x}", self.afi)?;
         for (index, id) in self.area_id.iter().enumerate() {
             if index % 2 == 0 {
-                write!(f, ".").unwrap();
+                write!(f, ".")?;
             }
-            write!(f, "{:02x}", id).unwrap();
+            write!(f, "{:02x}", id)?;
         }
         write!(
             f,

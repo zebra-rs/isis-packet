@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 
+use itertools::Itertools;
+
 use crate::{
     Algo, IsLevel, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId,
     IsisPacket, IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
@@ -316,6 +318,16 @@ pub fn nlpid_str(nlpid: u8) -> &'static str {
         IsisProto::Ipv4 => "IPv4",
         IsisProto::Ipv6 => "IPv6",
         _ => "Unknown",
+    }
+}
+
+impl Display for IsisProto {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            IsisProto::Ipv4 => write!(f, "IPv4"),
+            IsisProto::Ipv6 => write!(f, "IPv6"),
+            _ => write!(f, "Unknown"),
+        }
     }
 }
 

@@ -110,8 +110,7 @@ impl Display for IsisSubLanAdjSid {
             f,
             "    LAN Adjacency SID: {:?}, Weight: {}, Neighbor ID: {}",
             self.sid, self.weight, self.system_id
-        )
-        .unwrap();
+        )?;
         write!(f, "     Flags: {}", self.flags)
     }
 }
