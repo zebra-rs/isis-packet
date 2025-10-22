@@ -221,18 +221,18 @@ impl Display for IsisLspId {
 
 impl Display for IsisTlvAreaAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Area address:").unwrap();
+        write!(f, "  Area address:")?;
         if !self.area_addr.is_empty() {
-            write!(f, " {:02x}", self.area_addr[0]).unwrap();
+            write!(f, " {:02x}", self.area_addr[0])?;
 
             for (index, id) in self.area_addr.iter().enumerate() {
                 if index == 0 {
                     continue;
                 }
                 if index % 2 == 1 {
-                    write!(f, ".").unwrap();
+                    write!(f, ".")?;
                 }
-                write!(f, "{:02x}", id).unwrap();
+                write!(f, "{:02x}", id)?;
             }
         }
         Ok(())
@@ -321,9 +321,9 @@ pub fn nlpid_str(nlpid: u8) -> &'static str {
 
 impl Display for IsisTlvProtoSupported {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Protocol Supported:").unwrap();
+        write!(f, "  Protocol Supported:")?;
         for nlpid in &self.nlpids {
-            write!(f, " {}", nlpid_str(*nlpid)).unwrap();
+            write!(f, " {}", nlpid_str(*nlpid))?;
         }
         Ok(())
     }
