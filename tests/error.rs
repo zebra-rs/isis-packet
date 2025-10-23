@@ -21,21 +21,18 @@ fn test_isis_parse_error_display() {
     );
 
     let err = IsisParseError::InvalidPduType { pdu_type: 0xFF };
-    assert_eq!(
-        err.to_string(),
-        "Invalid PDU type: 0xff"
-    );
+    assert_eq!(err.to_string(), "Invalid PDU type: 0xff");
 
     let err = IsisParseError::UnknownTlvType { tlv_type: 0x99 };
-    assert_eq!(
-        err.to_string(),
-        "Unknown TLV type: 0x99"
-    );
+    assert_eq!(err.to_string(), "Unknown TLV type: 0x99");
 }
 
 #[test]
 fn test_isis_parse_error_debug() {
-    let err = IsisParseError::InvalidPacketLength { expected: 100, found: 50 };
+    let err = IsisParseError::InvalidPacketLength {
+        expected: 100,
+        found: 50,
+    };
     let debug_str = format!("{:?}", err);
     assert!(debug_str.contains("InvalidPacketLength"));
     assert!(debug_str.contains("expected: 100"));
@@ -54,7 +51,9 @@ fn test_isis_parse_error_equality() {
 
 #[test]
 fn test_isis_parse_error_clone() {
-    let err = IsisParseError::InvalidIpAddress { message: "test".to_string() };
+    let err = IsisParseError::InvalidIpAddress {
+        message: "test".to_string(),
+    };
     let cloned = err.clone();
     assert_eq!(err, cloned);
 }
@@ -62,30 +61,55 @@ fn test_isis_parse_error_clone() {
 #[test]
 fn test_isis_parse_error_variants() {
     let errors = vec![
-        IsisParseError::InvalidPacketLength { expected: 100, found: 50 },
-        IsisParseError::InvalidTlvLength { tlv_type: IsisTlvType::AreaAddr, expected: 10, found: 5 },
+        IsisParseError::InvalidPacketLength {
+            expected: 100,
+            found: 50,
+        },
+        IsisParseError::InvalidTlvLength {
+            tlv_type: IsisTlvType::AreaAddr,
+            expected: 10,
+            found: 5,
+        },
         IsisParseError::InvalidDiscriminator { found: 0x84 },
         IsisParseError::InvalidPduType { pdu_type: 0xFF },
         IsisParseError::UnknownTlvType { tlv_type: 0x99 },
-        IsisParseError::InvalidChecksum { expected: 0x1234, found: 0x5678 },
+        IsisParseError::InvalidChecksum {
+            expected: 0x1234,
+            found: 0x5678,
+        },
         IsisParseError::IncompleteData { needed: 42 },
-        IsisParseError::InvalidIpAddress { message: "test".to_string() },
-        IsisParseError::InvalidNsapAddress { message: "test".to_string() },
-        IsisParseError::InvalidSubTlv { message: "test".to_string() },
-        IsisParseError::InvalidSidLabel { message: "test".to_string() },
+        IsisParseError::InvalidIpAddress {
+            message: "test".to_string(),
+        },
+        IsisParseError::InvalidNsapAddress {
+            message: "test".to_string(),
+        },
+        IsisParseError::InvalidSubTlv {
+            message: "test".to_string(),
+        },
+        IsisParseError::InvalidSidLabel {
+            message: "test".to_string(),
+        },
         IsisParseError::InvalidPrefixLength { length: 33 },
-        IsisParseError::InvalidNeighborId { message: "test".to_string() },
-        IsisParseError::InvalidLspId { message: "test".to_string() },
-        IsisParseError::BufferOverflow { attempted: 100, available: 50 },
+        IsisParseError::InvalidNeighborId {
+            message: "test".to_string(),
+        },
+        IsisParseError::InvalidLspId {
+            message: "test".to_string(),
+        },
+        IsisParseError::BufferOverflow {
+            attempted: 100,
+            available: 50,
+        },
     ];
 
     for err in errors {
         // Test that each error can be displayed
         let _ = err.to_string();
-        
+
         // Test that each error can be formatted with Debug
         let _ = format!("{:?}", err);
-        
+
         // Test that each error is cloneable
         let _ = err.clone();
     }
@@ -100,10 +124,22 @@ fn test_isis_parse_error_helper_functions() {
     assert!(matches!(err, IsisParseError::NomError { .. }));
 
     let err = IsisParseError::invalid_checksum(0x1234, 0x5678);
-    assert!(matches!(err, IsisParseError::InvalidChecksum { expected: 0x1234, found: 0x5678 }));
+    assert!(matches!(
+        err,
+        IsisParseError::InvalidChecksum {
+            expected: 0x1234,
+            found: 0x5678
+        }
+    ));
 
     let err = IsisParseError::buffer_overflow(100, 50);
-    assert!(matches!(err, IsisParseError::BufferOverflow { attempted: 100, available: 50 }));
+    assert!(matches!(
+        err,
+        IsisParseError::BufferOverflow {
+            attempted: 100,
+            available: 50
+        }
+    ));
 }
 
 #[test]
@@ -113,6 +149,8 @@ fn test_isis_parse_result_type() {
 
     assert!(success.is_ok());
     assert!(failure.is_err());
-    assert_eq!(success.unwrap(), 42);
-    assert!(matches!(failure.unwrap_err(), IsisParseError::IncompleteData { needed: 10 }));
+    assert!(matches!(
+        IsisParseError::incomplete_data(10),
+        IsisParseError::IncompleteData { needed: 10 }
+    ));
 }

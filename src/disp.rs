@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter, Result};
 
+use itertools::Itertools;
+
 use crate::{
     Algo, IsLevel, IsisCsnp, IsisHello, IsisLsp, IsisLspEntry, IsisLspId, IsisNeighborId,
     IsisPacket, IsisPdu, IsisProto, IsisPsnp, IsisSysId, IsisTlv, IsisTlvAreaAddr, IsisTlvHostname,
@@ -221,18 +223,18 @@ impl Display for IsisLspId {
 
 impl Display for IsisTlvAreaAddr {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Area address:").unwrap();
+        write!(f, "  Area address:")?;
         if !self.area_addr.is_empty() {
-            write!(f, " {:02x}", self.area_addr[0]).unwrap();
+            write!(f, " {:02x}", self.area_addr[0])?;
 
             for (index, id) in self.area_addr.iter().enumerate() {
                 if index == 0 {
                     continue;
                 }
                 if index % 2 == 1 {
-                    write!(f, ".").unwrap();
+                    write!(f, ".")?;
                 }
-                write!(f, "{:02x}", id).unwrap();
+                write!(f, "{:02x}", id)?;
             }
         }
         Ok(())
@@ -311,21 +313,34 @@ impl Display for IsisTlvSrv6 {
     }
 }
 
-pub fn nlpid_str(nlpid: u8) -> &'static str {
-    match nlpid.into() {
-        IsisProto::Ipv4 => "IPv4",
-        IsisProto::Ipv6 => "IPv6",
-        _ => "Unknown",
+// pub fn nlpid_str(nlpid: u8) -> &'static str {
+//     match nlpid.into() {
+//         IsisProto::Ipv4 => "IPv4",
+//         IsisProto::Ipv6 => "IPv6",
+//         _ => "Unknown",
+//     }
+// }
+
+impl Display for IsisProto {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            IsisProto::Ipv4 => write!(f, "IPv4"),
+            IsisProto::Ipv6 => write!(f, "IPv6"),
+            _ => write!(f, "Unknown"),
+        }
     }
 }
 
 impl Display for IsisTlvProtoSupported {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Protocol Supported:").unwrap();
-        for nlpid in &self.nlpids {
-            write!(f, " {}", nlpid_str(*nlpid)).unwrap();
-        }
-        Ok(())
+        write!(
+            f,
+            "  Protocol Supported: {}",
+            self.nlpids
+                .iter()
+                .map(|nlpid| IsisProto::from(*nlpid))
+                .format(" ")
+        )
     }
 }
 

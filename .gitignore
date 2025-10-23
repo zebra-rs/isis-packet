@@ -1,6 +1,22 @@
-.*.swp
-/.vscode
+# Rust
 /target
 Cargo.lock
-.claude
+
+# Binary
+cli/cli
+
+# Logging
+zebra-rs.log
+
+# macOS
+.DS_Store
+
+# CLAUDE CODE
 CLAUDE.md
+.claude
+
+# OpenAI Codex
+AGENTS.md
+
+# IntelliJ
+.idea

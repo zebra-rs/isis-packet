@@ -4,12 +4,12 @@ use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use ipnet::{Ipv4Net, Ipv6Net};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u16, be_u32, be_u8};
+use nom::number::complete::{be_u8, be_u16, be_u32};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 use serde::{Deserialize, Serialize};
 
-use crate::util::{many0, ParseBe, TlvEmitter};
+use crate::util::{ParseBe, TlvEmitter, many0};
 use crate::{Algo, IsisTlv, IsisTlvType, SidLabelValue};
 
 use super::{Behavior, IsisCodeLen, IsisPrefixCode, IsisSrv6SidSub2Code, IsisSubTlvUnknown};

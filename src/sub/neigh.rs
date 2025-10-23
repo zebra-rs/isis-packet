@@ -3,15 +3,15 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use bitfield_struct::bitfield;
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u16, be_u24, be_u8};
+use nom::number::complete::{be_u8, be_u16, be_u24};
 use nom::{Err, IResult, Needed};
 use nom_derive::*;
 use serde::{Deserialize, Serialize};
 
-use crate::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
+use crate::util::{ParseBe, TlvEmitter, many0, u32_u8_3};
 use crate::{
-    Algo, IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType, SidLabelValue, IPV4_ADDR_LEN,
-    IPV6_ADDR_LEN,
+    Algo, IPV4_ADDR_LEN, IPV6_ADDR_LEN, IsisNeighborId, IsisSysId, IsisTlv, IsisTlvType,
+    SidLabelValue,
 };
 
 use super::{Behavior, IsisCodeLen, IsisNeighCode, IsisSub2Tlv, IsisSubTlvUnknown};

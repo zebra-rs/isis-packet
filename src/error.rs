@@ -1,6 +1,6 @@
-use thiserror::Error;
-use nom::{ErrorConvert, error::ParseError};
 use crate::{IsisTlvType, IsisType};
+use nom::{ErrorConvert, error::ParseError};
+use thiserror::Error;
 
 /// Custom error type for IS-IS packet parsing
 #[derive(Error, Debug, Clone, PartialEq)]
@@ -14,17 +14,11 @@ pub enum IsisParseError {
 
     /// Error parsing a specific PDU
     #[error("PDU parse error: {pdu_type:?} - {message}")]
-    PduParseError {
-        pdu_type: IsisType,
-        message: String,
-    },
+    PduParseError { pdu_type: IsisType, message: String },
 
     /// Invalid packet length
     #[error("Invalid packet length: expected {expected}, found {found}")]
-    InvalidPacketLength {
-        expected: usize,
-        found: usize,
-    },
+    InvalidPacketLength { expected: usize, found: usize },
 
     /// Invalid TLV length
     #[error("Invalid TLV length: TLV type {tlv_type:?}, expected {expected}, found {found}")]
@@ -127,7 +121,10 @@ impl IsisParseError {
 
     /// Create a new buffer overflow error
     pub fn buffer_overflow(attempted: usize, available: usize) -> Self {
-        Self::BufferOverflow { attempted, available }
+        Self::BufferOverflow {
+            attempted,
+            available,
+        }
     }
 }
 
@@ -216,7 +213,13 @@ mod tests {
     #[test]
     fn test_invalid_checksum_error() {
         let err = IsisParseError::invalid_checksum(0x1234, 0x5678);
-        assert!(matches!(err, IsisParseError::InvalidChecksum { expected: 0x1234, found: 0x5678 }));
+        assert!(matches!(
+            err,
+            IsisParseError::InvalidChecksum {
+                expected: 0x1234,
+                found: 0x5678
+            }
+        ));
         assert!(err.to_string().contains("expected 0x1234"));
         assert!(err.to_string().contains("found 0x5678"));
     }
@@ -224,22 +227,35 @@ mod tests {
     #[test]
     fn test_buffer_overflow_error() {
         let err = IsisParseError::buffer_overflow(100, 50);
-        assert!(matches!(err, IsisParseError::BufferOverflow { attempted: 100, available: 50 }));
+        assert!(matches!(
+            err,
+            IsisParseError::BufferOverflow {
+                attempted: 100,
+                available: 50
+            }
+        ));
         assert!(err.to_string().contains("attempted to read 100 bytes"));
         assert!(err.to_string().contains("only 50 available"));
     }
 
     #[test]
     fn test_nom_error_conversion() {
-        let nom_err: nom::Err<nom::error::Error<&[u8]>> = nom::Err::Error(nom::error::Error::new(&b"test"[..], nom::error::ErrorKind::Tag));
+        let nom_err: nom::Err<nom::error::Error<&[u8]>> = nom::Err::Error(nom::error::Error::new(
+            &b"test"[..],
+            nom::error::ErrorKind::Tag,
+        ));
         let isis_err: IsisParseError = nom_err.into();
         assert!(matches!(isis_err, IsisParseError::NomError { .. }));
     }
 
     #[test]
     fn test_incomplete_conversion() {
-        let nom_err: nom::Err<nom::error::Error<&[u8]>> = nom::Err::Incomplete(nom::Needed::Size(std::num::NonZeroUsize::new(10).unwrap()));
+        let nom_err: nom::Err<nom::error::Error<&[u8]>> =
+            nom::Err::Incomplete(nom::Needed::Size(std::num::NonZeroUsize::new(10).unwrap()));
         let isis_err: IsisParseError = nom_err.into();
-        assert!(matches!(isis_err, IsisParseError::IncompleteData { needed: 10 }));
+        assert!(matches!(
+            isis_err,
+            IsisParseError::IncompleteData { needed: 10 }
+        ));
     }
 }
