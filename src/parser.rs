@@ -4,13 +4,13 @@ use bitfield_struct::bitfield;
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use nom::bytes::complete::take;
-use nom::number::complete::{be_u128, be_u24, be_u32, be_u8};
+use nom::number::complete::{be_u8, be_u24, be_u32, be_u128};
 use nom::{AsBytes, Err, IResult, Needed};
 use nom_derive::*;
 use serde::{Deserialize, Serialize, Serializer};
 
 use super::checksum_calc;
-use super::util::{many0, u32_u8_3, ParseBe, TlvEmitter};
+use super::util::{ParseBe, TlvEmitter, many0, u32_u8_3};
 use super::{
     IsisTlvExtIpReach, IsisTlvExtIsReach, IsisTlvIpv6Reach, IsisTlvMtIpReach, IsisTlvMtIpv6Reach,
     IsisTlvRouterCap, IsisTlvSrv6, IsisTlvType, IsisType,

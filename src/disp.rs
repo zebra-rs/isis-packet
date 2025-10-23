@@ -313,13 +313,13 @@ impl Display for IsisTlvSrv6 {
     }
 }
 
-pub fn nlpid_str(nlpid: u8) -> &'static str {
-    match nlpid.into() {
-        IsisProto::Ipv4 => "IPv4",
-        IsisProto::Ipv6 => "IPv6",
-        _ => "Unknown",
-    }
-}
+// pub fn nlpid_str(nlpid: u8) -> &'static str {
+//     match nlpid.into() {
+//         IsisProto::Ipv4 => "IPv4",
+//         IsisProto::Ipv6 => "IPv6",
+//         _ => "Unknown",
+//     }
+// }
 
 impl Display for IsisProto {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -333,11 +333,14 @@ impl Display for IsisProto {
 
 impl Display for IsisTlvProtoSupported {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "  Protocol Supported:")?;
-        for nlpid in &self.nlpids {
-            write!(f, " {}", nlpid_str(*nlpid))?;
-        }
-        Ok(())
+        write!(
+            f,
+            "  Protocol Supported: {}",
+            self.nlpids
+                .iter()
+                .map(|nlpid| IsisProto::from(*nlpid))
+                .format(" ")
+        )
     }
 }
 

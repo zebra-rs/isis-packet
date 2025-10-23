@@ -1,6 +1,6 @@
 use bytes::BytesMut;
 
-use crate::{parse, IsisHello, IsisPacket, IsisPdu, IsisTlv, IsisTlvPadding, IsisType};
+use crate::{IsisHello, IsisPacket, IsisPdu, IsisTlv, IsisTlvPadding, IsisType, parse};
 
 impl IsisHello {
     pub fn padding(&mut self, mtu: usize) {
